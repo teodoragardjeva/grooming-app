@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* Design tokens: see docs/DESIGN.md. Dark burgundy/gold hero + footer, light parchment content. */
+@theme {
+  --color-burgundy-900: #3a0719;
+  --color-burgundy-700: #6e1230;
+  --color-burgundy-800: #520f26;
+  --color-gold-400: #d9b26a;
+  --color-gold-500: #c19a4a;
+  --color-gold-600: #a87b2e;
+  /* darker gold for gold-coloured text on light backgrounds (AA, see tests/vitest/contrast.spec.ts) */
+  --color-gold-700: #7a5719;
+  --color-parchment-50: #f6ead0;
+  --color-parchment-100: #ecdab0;
+  --color-parchment-200: #e0c892;
+  --color-ink-900: #21110f;
+  --color-heading: #2a0a12;
+  --color-cream-50: #f8f1ee;
+  --color-gold-300: #f5dc8f;
+  --color-gold-100: #fcf3cc;
+  --color-mist: #dccbce;
+  --color-plum-500: #4b3a78;
+
+  --font-sans: "Open Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "EB Garamond Variable", Georgia, "Times New Roman", serif;
+
+  --animate-twinkle: twinkle 3.6s ease-in-out infinite;
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: 0.25;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    /* aged-parchment: warm vignette + fine paper grain (inline SVG noise, no network request) */
+    background-color: var(--color-parchment-50);
+    background-image:
+      radial-gradient(ellipse at 50% 0%, rgba(255, 248, 226, 0.7), transparent 55%),
+      radial-gradient(ellipse at 0% 100%, rgba(170, 120, 60, 0.16), transparent 50%),
+      radial-gradient(ellipse at 100% 60%, rgba(170, 120, 60, 0.14), transparent 45%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .28 0 0 0 0 .1 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  /* Tailwind's preflight resets buttons to the default arrow cursor; clickable things should show a hand. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-gold-400);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@utility bg-gold-foil {
+  background-image: linear-gradient(180deg, #f3dca2 0%, #d9b26a 48%, #b98a3e 100%);
+}
+@utility bg-wine {
+  background-image: linear-gradient(135deg, #5b0f2a 0%, #3a0719 70%);
+}
+@utility bg-parchment-card {
+  background-image: linear-gradient(160deg, #f8eed4 0%, #ecdab0 100%);
+}
+
+/* Hero artwork: fades into the wine background on the left and top edges. */
+@utility hero-art-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 30%), linear-gradient(to bottom, transparent 0, #000 28%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0, #000 30%), linear-gradient(to bottom, transparent 0, #000 28%);
+  mask-composite: intersect;
+}
+@utility footer-art-mask {
+  -webkit-mask-image: radial-gradient(ellipse at 55% 50%, #000 38%, transparent 82%);
+  mask-image: radial-gradient(ellipse at 55% 50%, #000 38%, transparent 82%);
+}
+
+/* Slow gold sweep across promotion banners (disabled by the global reduced-motion rule). */
+.promo-shine {
+  background: linear-gradient(115deg, transparent 35%, rgba(245, 220, 143, 0.18) 50%, transparent 65%);
+  background-size: 250% 100%;
+  animation: promo-sweep 6s ease-in-out infinite;
+}
+@keyframes promo-sweep {
+  0% { background-position: 120% 0; }
+  60%, 100% { background-position: -120% 0; }
+}

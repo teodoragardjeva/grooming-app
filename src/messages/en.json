@@ -1,0 +1,317 @@
+{
+  "meta": {
+    "siteName": "Magic Paws",
+    "description": "A dog grooming studio with a touch of magic: bathing, trimming and styling. Book your appointment online.",
+    "tagline": "Dog grooming studio"
+  },
+  "common": {
+    "skipToContent": "Skip to content",
+    "book": "Book now",
+    "exampleBadge": "Example data",
+    "comingSoon": "The content of this page will be added soon."
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Home",
+    "services": "Services",
+    "about": "About",
+    "gallery": "Gallery",
+    "promotions": "Promotions",
+    "contacts": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "language": {
+    "label": "Language",
+    "bg": "Български",
+    "en": "English"
+  },
+  "home": {
+    "eyebrow": "Dog grooming studio",
+    "title": "Magical care for your four-legged friend",
+    "text": "Bathing, trimming and styling in a calm, cosy setting. Book your appointment online in just a few minutes.",
+    "secondaryCta": "See our services",
+    "benefitsTitle": "Why choose us",
+    "benefits": {
+      "gentle": {
+        "title": "A gentle approach",
+        "text": "Every dog is different. We work slowly and patiently, at your dog's own pace."
+      },
+      "calm": {
+        "title": "A calm atmosphere",
+        "text": "A cosy studio where your companion feels safe."
+      },
+      "online": {
+        "title": "Easy online booking",
+        "text": "Pick a service and a free time, confirm by email, and you're all set."
+      },
+      "payment": {
+        "title": "Pay at the studio",
+        "text": "You pay in person at the studio. No online payment needed."
+      }
+    },
+    "ctaTitle": "Ready for a little magic?",
+    "ctaText": "Choose a time that suits you and we will take care of the rest."
+  },
+  "pages": {
+    "services": {
+      "title": "Services",
+      "intro": "Our services with prices and durations."
+    },
+    "about": {
+      "title": "About us",
+      "intro": "Meet the studio and the team."
+    },
+    "gallery": {
+      "title": "Gallery",
+      "intro": "Moments from our studio."
+    },
+    "promotions": {
+      "title": "Promotions",
+      "intro": "Current special offers."
+    },
+    "contacts": {
+      "title": "Contact",
+      "intro": "How to find and reach us."
+    },
+    "booking": {
+      "title": "Book an appointment",
+      "intro": "Choose a service, a date and a free time."
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "intro": "How we handle your personal data."
+    },
+    "terms": {
+      "title": "Booking terms",
+      "intro": "Rules for bookings and cancellations."
+    },
+    "cookies": {
+      "title": "Cookie policy",
+      "intro": "How we use cookies."
+    }
+  },
+  "footer": {
+    "about": "A dog grooming studio with a touch of magic.",
+    "contactsTitle": "Contact",
+    "hoursTitle": "Opening hours",
+    "legalTitle": "Information",
+    "addressExample": "Example address, to be replaced",
+    "phoneExample": "Example phone number, to be replaced",
+    "emailExample": "Example email, to be replaced",
+    "hoursExample": "Example opening hours, to be replaced",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies",
+    "rights": "All rights reserved.",
+    "linksTitle": "Quick links"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "It seems this spell did not work. The page you are looking for does not exist.",
+    "back": "Back to home"
+  },
+  "booking": {
+    "stepService": "Service",
+    "stepDate": "Date & time",
+    "stepDetails": "Your details",
+    "stepDone": "Confirmation",
+    "chooseService": "Choose a service",
+    "chooseSize": "Dog size",
+    "chooseDate": "Choose a date",
+    "chooseTime": "Available times for {date}",
+    "noSlots": "No free times on this day. Try another date.",
+    "loadingSlots": "Loading times…",
+    "unavailable": "Taken",
+    "duration": "{minutes} min",
+    "from": "from {price}",
+    "next": "Next",
+    "back": "Back",
+    "selectedSummary": "Your selection",
+    "payment": "Pay at the studio.",
+    "name": "Your name",
+    "phone": "Phone",
+    "email": "Email",
+    "dogName": "Dog's name (optional)",
+    "notes": "Notes (optional)",
+    "consent": "I agree to my personal data being processed to handle this booking. Read the {privacy}.",
+    "privacyLink": "privacy policy",
+    "submit": "Send request",
+    "submitting": "Sending…",
+    "checkEmailTitle": "Check your email",
+    "checkEmailBody": "We sent a confirmation link to {email}. Your slot is held for {minutes} minutes – confirm it from the email before the time runs out, or it will be released.",
+    "checkEmailSpam": "If you do not see the email within a minute or two, check your Spam (Junk) or Promotions folder. If it does not arrive, you can try again once the time has run out.",
+    "holdCountdown": "{time} left",
+    "holdExpired": "The confirmation time ran out. Please choose a time again.",
+    "startOver": "Start over",
+    "confirmTitle": "Confirm your appointment",
+    "confirmIntro": "Please confirm your booking.",
+    "confirmButton": "Confirm appointment",
+    "confirmedTitle": "Appointment confirmed",
+    "confirmedBody": "We look forward to seeing you! A confirmation was sent to your email.",
+    "cancelTitle": "Cancel appointment",
+    "cancelIntro": "Are you sure you want to cancel this appointment?",
+    "cancelButton": "Cancel appointment",
+    "cancelledTitle": "Appointment cancelled",
+    "cancelledBody": "Your booking was cancelled. You can book a new time at any moment.",
+    "bookAgain": "Book a new time",
+    "notConfigured": "Online booking is not configured yet. Please contact us by phone.",
+    "noServices": "No services are currently available for online booking.",
+    "checkingLink": "Checking link…",
+    "summary": {
+      "service": "Service",
+      "when": "When",
+      "price": "Price",
+      "dog": "Dog"
+    }
+  },
+  "errors": {
+    "service_required": "Choose a service.",
+    "variant_required": "Choose a size.",
+    "slot_required": "Choose a time.",
+    "name_short": "Enter a name (at least 2 characters).",
+    "name_long": "The name is too long.",
+    "phone_invalid": "Enter a valid phone number.",
+    "email_invalid": "Enter a valid email address.",
+    "text_long": "The text is too long.",
+    "consent_required": "Consent is required to continue.",
+    "too_soon": "That time is too soon. Pick a later one.",
+    "too_far": "That time is too far ahead.",
+    "outside_hours": "That time is outside opening hours.",
+    "blocked": "That time is not available.",
+    "slot_taken": "That time was just taken. Please choose another.",
+    "service_not_found": "Service not found.",
+    "variant_invalid": "Invalid size.",
+    "invalid_input": "Please check the entered data.",
+    "rate_limited": "Too many attempts. Please try again shortly.",
+    "captcha_failed": "Security check failed. Please try again.",
+    "email_failed": "We could not send the email. Please try again.",
+    "pending_exists": "There is already an unconfirmed reservation for this email. Confirm it from the email (check Spam too) or wait until its confirmation time runs out, then try again.",
+    "invalid_token": "This link is invalid or already used.",
+    "expired": "This link has expired.",
+    "too_late": "Online cancellation is no longer possible. Please call us.",
+    "not_cancellable": "This booking cannot be cancelled.",
+    "not_configured": "This service is temporarily unavailable.",
+    "internal": "Something went wrong. Please try again."
+  },
+  "content": {
+    "from": "from {price}",
+    "duration": "{minutes} min",
+    "bookService": "Book this service",
+    "noServices": "Services will be added soon.",
+    "noGallery": "The gallery will be filled soon.",
+    "noPromotions": "There are no active promotions right now.",
+    "validUntil": "Valid until {date}",
+    "viewAll": "View all",
+    "popularServices": "Our services",
+    "galleryTitle": "Gallery",
+    "promotionsTitle": "Promotions",
+    "closeImage": "Close",
+    "prevImage": "Previous photo",
+    "nextImage": "Next photo",
+    "openImage": "Enlarge photo",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "hours": "Opening hours",
+    "openMap": "Open in maps",
+    "exampleNotice": "Example data – will be replaced with the studio's real details.",
+    "paymentNote": "Pay at the studio.",
+    "aboutDefault": "Magic Paws is a boutique dog grooming studio. Every dog gets attention, patience and gentle care.",
+    "hoursDay": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "0": "Sunday"
+    },
+    "closed": "Closed",
+    "promoBadge": "Special offer",
+    "promoCta": "Book with this offer",
+    "allPromos": "All promotions"
+  },
+  "legal": {
+    "draftNotice": "Sample text – the owner and a lawyer must review and complete it before publishing.",
+    "privacy": [
+      "We only collect the data needed for the booking: name, phone, email, dog's name and notes.",
+      "We use it solely to handle and remind you about your appointment and do not share it with third parties other than the providers needed to run the site (hosting, database, email).",
+      "You may request access, correction or deletion of your data by contacting us."
+    ],
+    "terms": [
+      "A booking is confirmed via the link sent to your email. Unconfirmed slots are released automatically.",
+      "You can cancel online up to 24 hours before the start using the link in your email. After that, please call us.",
+      "Payment is made at the studio."
+    ],
+    "cookies": [
+      "We only use strictly necessary cookies for the site and the admin panel.",
+      "We do not use advertising or tracking cookies."
+    ]
+  },
+  "photos": {
+    "hero-dachshund": "A dachshund wrapped in a white towel with a smiling groomer behind",
+    "groomer-towel": "A smiling dog groomer holding a dog wrapped in a towel",
+    "poodle-before-after": "A black poodle before and after grooming and styling",
+    "yorkie-before-after": "A Yorkshire terrier before and after a haircut",
+    "yorkie-bow": "A freshly groomed Yorkshire terrier with a brown bow",
+    "pomeranian-lap": "A fluffy Pomeranian relaxing on its back for cuddles",
+    "pomeranian-towel": "A Pomeranian snug in a soft towel after a bath",
+    "hero-banner": "Smiling dog in a wizard hat among books and candles"
+  },
+  "home2": {
+    "baTitle": "Before & after",
+    "baText": "A little patience and lots of care – the result speaks for itself.",
+    "baBefore": "Before",
+    "baAfter": "After",
+    "momentsTitle": "Happy little paws",
+    "momentsText": "After the bath: a towel, cuddles and plenty of love.",
+    "aboutTitle": "Care with patience and attention",
+    "aboutText": "Every dog is different, so we take time to get to know them, calm them and send them home happy and beautiful.",
+    "aboutCta": "Learn more",
+    "ctaBand": "Book a visit for your furry friend",
+    "ctaBandText": "Easy, fast and convenient – pick a service and a time, and leave the rest to us.",
+    "promoEyebrow": "Current offer",
+    "benefit": {
+      "expert": {
+        "title": "Professional care",
+        "text": "An experienced team that loves dogs."
+      },
+      "individual": {
+        "title": "Personal approach",
+        "text": "Tailored to your dog's breed, age and needs."
+      },
+      "quality": {
+        "title": "Quality products",
+        "text": "Professional cosmetics, never compromising on safety."
+      },
+      "calm": {
+        "title": "Cosy, calm place",
+        "text": "No stress – plenty of attention, patience and positive energy."
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "book": {
+      "q": "How do I book an appointment?",
+      "a": "Open “Book now”, choose a service (and your dog's size if needed), a date and a free time. You then receive an email with a confirmation link. Your slot is held for {minutes} minutes until you confirm it."
+    },
+    "payment": {
+      "q": "Do I pay online?",
+      "a": "No. You pay at the studio. Nothing is paid online."
+    },
+    "cancel": {
+      "q": "Can I cancel an appointment?",
+      "a": "Yes – use the cancellation link in your confirmation email, up to {hours} hours before the appointment. To change an appointment or to cancel later, please contact the studio."
+    },
+    "price": {
+      "q": "How much does a service cost and how long does it take?",
+      "a": "Price and duration depend on the service and on your dog's size. The Services page lists the price and duration of every service."
+    },
+    "noEmail": {
+      "q": "I did not receive the confirmation email. What should I do?",
+      "a": "Check your Spam and Promotions folders. If the email did not arrive and the confirmation time has run out, the slot is released and you can book again."
+    }
+  }
+}

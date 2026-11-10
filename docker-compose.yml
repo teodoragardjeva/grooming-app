@@ -1,0 +1,100 @@
+# Production-like stack: PostgreSQL + migrations + Next.js app + daily housekeeping + Caddy (automatic HTTPS).
+# Configure with a .env file next to this file (see .env.example). Start: docker compose up -d --build
+name: grooming
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-grooming}
+      POSTGRES_USER: ${POSTGRES_USER:-grooming}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    # Not published to the host. For a local psql: docker compose exec db psql -U grooming
+
+  migrate:
+    image: postgres:16-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB:-grooming}
+      PGUSER: ${POSTGRES_USER:-grooming}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      SEED_EXAMPLE_DATA: ${SEED_EXAMPLE_DATA:-0}
+    volumes:
+      - ./db:/db:ro
+    entrypoint: ["sh", "/db/migrate.sh"]
+
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-grooming}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-grooming}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
+      TOKEN_HASH_SECRET: ${TOKEN_HASH_SECRET:?set TOKEN_HASH_SECRET in .env}
+      CRON_SECRET: ${CRON_SECRET:?set CRON_SECRET in .env}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+    volumes:
+      - media:/data/media
+    expose:
+      - "3000"
+
+  # Backup housekeeping (expired holds, old tokens/sessions). Correctness never depends on it.
+  cron:
+    image: alpine:3
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true; do
+          sleep 86400
+          wget -q -O /dev/null --header="Authorization: Bearer $$CRON_SECRET" http://app:3000/api/cron/cleanup || true
+        done
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      # Your domain (e.g. example.com) for automatic HTTPS; ":80" serves plain HTTP (local use).
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  media:
+  caddy_data:
+  caddy_config:

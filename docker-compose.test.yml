@@ -1,0 +1,36 @@
+# Throwaway PostgreSQL for the database tests (no data is kept).
+#   npm run test:db           -> SQL-level tests (tests/db/run.sh) inside a container
+#   npm run test:integration  -> Vitest use-case tests against this database on 127.0.0.1:54329
+name: grooming-test
+
+services:
+  testdb:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_DB: postgres
+    command: ["postgres", "-c", "fsync=off", "-c", "max_connections=100"]
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:54329:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  dbtests:
+    image: postgres:16
+    profiles: ["run"]
+    depends_on:
+      testdb:
+        condition: service_healthy
+    environment:
+      PGHOST: testdb
+      PGPORT: "5432"
+      PGUSER: postgres
+    volumes:
+      - ./:/repo:ro
+    working_dir: /repo
+    entrypoint: ["bash", "/repo/tests/db/run.sh"]

@@ -1,0 +1,8 @@
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+	# Uploads are limited to 5 MB per image (+ form overhead) by the app.
+	request_body {
+		max_size 8MB
+	}
+	reverse_proxy app:3000
+}

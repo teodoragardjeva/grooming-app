@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+.pnp*
+
+# build
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# tests
+playwright-report/
+test-results/
+.playwright/
+
+# local data (uploads)
+data/
+
+# logs / OS / editor
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+
+# claude local overrides
+.claude/settings.local.json
