@@ -3,7 +3,9 @@ import { z } from "zod";
 import { errorResponse, guarded, json } from "@/lib/api/http";
 import { createBookingDeps } from "@/lib/booking/runtime";
 import { listAvailableDays } from "@/lib/booking/slots";
-import { allowRequest, clientIp } from "@/lib/security/rate-limit";
+import { serverEnv } from "@/lib/env";
+import { requestIp } from "@/lib/security/bot-auth";
+import { allowRequest } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +22,7 @@ export function GET(req: NextRequest) {
     const q = schema.safeParse(Object.fromEntries(req.nextUrl.searchParams));
     if (!q.success) return errorResponse("invalid_input");
     const deps = createBookingDeps();
-    if (!(await allowRequest(deps.rpc, "availability", clientIp(req.headers), 120, 60))) return errorResponse("rate_limited");
+    if (!(await allowRequest(deps.rpc, "availability", requestIp(req.headers, serverEnv().BOT_SECRET), 120, 60))) return errorResponse("rate_limited");
     const r = await listAvailableDays(deps, { serviceId: q.data.service, variantId: q.data.variant ?? null, from: q.data.from, to: q.data.to });
     return r.ok ? json(r) : errorResponse(r.error);
   });

@@ -14,6 +14,8 @@ The application features (Phases 0–9) were built earlier; on 2026-11-10 the pr
 - [ ] Resend account + verified domain; real e-mail delivery test.
 - [ ] Scheduled database and media backups copied off the droplet.
 - [ ] First-run content: real business details, services, photos, legal texts.
+- [x] Chatbot plumbing: n8n service in the compose network, `/api/chat`, `/api/services`, bot trust (`BOT_SECRET`), chat bubble, workflow `n8n/grooming-chatbot.workflow.json`.
+- [ ] Chatbot end-to-end: OpenAI credential in n8n, workflow activated, real Resend delivery, a full conversation tested in bg and en.
 
 ## Feature phases (built earlier, re-verified on the new stack where noted)
 - [x] Phase 0 — Repo scaffolding

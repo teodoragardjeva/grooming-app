@@ -4,7 +4,8 @@ import { serverEnv } from "@/lib/env";
 import { createBookingDeps } from "@/lib/booking/runtime";
 import { createPublicBooking } from "@/lib/booking/public";
 import { bookingRequestSchema } from "@/lib/booking/schemas";
-import { allowRequest, clientIp } from "@/lib/security/rate-limit";
+import { isTrustedBot, requestIp } from "@/lib/security/bot-auth";
+import { allowRequest } from "@/lib/security/rate-limit";
 import { verifyTurnstile } from "@/lib/security/turnstile";
 
 export const dynamic = "force-dynamic";
@@ -23,12 +24,15 @@ export function POST(req: NextRequest) {
       const fields = [...new Set(parsed.error.issues.map((i) => i.path.join(".")))];
       return errorResponse("invalid_input", { fields });
     }
-    const ip = clientIp(req.headers);
+    const env = serverEnv();
+    // Chatbot (n8n) callers present BOT_SECRET: rate-limit per visitor IP and skip Turnstile (a bot cannot solve it).
+    const trustedBot = isTrustedBot(req.headers, env.BOT_SECRET);
+    const ip = requestIp(req.headers, env.BOT_SECRET);
     const deps = createBookingDeps();
     // 5 requests / 10 min / IP, plus 3 / 10 min per email address.
     if (!(await allowRequest(deps.rpc, "booking", ip, 5, 600))) return errorResponse("rate_limited");
     if (!(await allowRequest(deps.rpc, "booking-email", parsed.data.email.toLowerCase(), 3, 600))) return errorResponse("rate_limited");
-    if (!(await verifyTurnstile(parsed.data.turnstileToken, ip, serverEnv().TURNSTILE_SECRET_KEY))) return errorResponse("captcha_failed");
+    if (!trustedBot && !(await verifyTurnstile(parsed.data.turnstileToken, ip, env.TURNSTILE_SECRET_KEY))) return errorResponse("captcha_failed");
 
     const r = await createPublicBooking(deps, parsed.data);
     return r.ok ? json(r, 201) : errorResponse(r.error);
