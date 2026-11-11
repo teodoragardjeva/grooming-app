@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import "@fontsource-variable/open-sans";
 import "@fontsource-variable/eb-garamond";
 import "../globals.css";
+import { ChatBubble } from "@/components/chat/chat-bubble";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { resolveLocale, type LocaleParams } from "@/i18n/locale";
@@ -53,6 +54,7 @@ export default async function LocaleLayout({
             {children}
           </main>
           <SiteFooter locale={locale as "bg" | "en"} />
+          <ChatBubble />
         </NextIntlClientProvider>
       </body>
     </html>

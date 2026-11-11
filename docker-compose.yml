@@ -55,10 +55,42 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM: ${RESEND_FROM:-}
       TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+      # Chatbot: /api/chat relays visitor messages to the n8n webhook (internal network only) with this shared secret.
+      BOT_SECRET: ${BOT_SECRET:?set BOT_SECRET in .env (openssl rand -hex 32)}
+      N8N_CHAT_WEBHOOK_URL: http://n8n:5678/webhook/grooming-chat
     volumes:
       - media:/data/media
     expose:
       - "3000"
+
+  # Chatbot workflow engine. Same compose network as the app (reaches it as http://app:3000). The webhook is NOT
+  # published: only /api/chat in the app can call it. The editor is bound to the server's loopback only; open it with
+  # an SSH tunnel (ssh -L 5678:localhost:5678 user@server) until it is put behind the reverse proxy with auth.
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY in .env (openssl rand -hex 32)}
+      N8N_HOST: localhost
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      N8N_SECURE_COOKIE: "false" # editor is only reachable on loopback / through a tunnel
+      WEBHOOK_URL: http://n8n:5678/
+      GENERIC_TIMEZONE: Europe/Sofia
+      TZ: Europe/Sofia
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      # The workflow reads these with $env.* (kept out of the exported workflow JSON).
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      APP_BASE_URL: http://app:3000
+      BOOKING_BOT_SECRET: ${BOT_SECRET}
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
 
   # Backup housekeeping (expired holds, old tokens/sessions). Correctness never depends on it.
   cron:
@@ -96,5 +128,6 @@ services:
 volumes:
   pgdata:
   media:
+  n8n_data:
   caddy_data:
   caddy_config:

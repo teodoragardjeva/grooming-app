@@ -313,5 +313,18 @@
       "q": "I did not receive the confirmation email. What should I do?",
       "a": "Check your Spam and Promotions folders. If the email did not arrive and the confirmation time has run out, the slot is released and you can book again."
     }
+  },
+  "chat": {
+    "open": "Chat with the assistant",
+    "close": "Close chat",
+    "title": "Booking assistant",
+    "welcome": "Hello! I can help you choose a service and book an appointment. Where shall we start?",
+    "placeholder": "Type a message…",
+    "send": "Send",
+    "thinking": "The assistant is typing…",
+    "error": "I can't answer right now. Please try again shortly or use the booking form.",
+    "rateLimited": "You have sent many messages. Please try again in a few minutes.",
+    "unavailable": "The chat is not available right now. You can book from the “Book” page.",
+    "disclaimer": "Automated assistant. Your appointment is only booked once you confirm it from the e-mail."
   }
 }

@@ -8,6 +8,10 @@ const serverSchema = z.object({
   RESEND_FROM: z.string().optional(),
   CRON_SECRET: z.string().min(16).optional(),
   TURNSTILE_SECRET_KEY: z.string().optional(),
+  // Chatbot (n8n). Both optional: without them the chat endpoint answers "not_configured".
+  // Empty strings (compose passes unset variables as "") count as "not set".
+  BOT_SECRET: z.preprocess((v) => (v === "" ? undefined : v), z.string().min(32).optional()),
+  N8N_CHAT_WEBHOOK_URL: z.preprocess((v) => (v === "" ? undefined : v), z.url().optional()),
 });
 
 export function siteUrl(): string {
