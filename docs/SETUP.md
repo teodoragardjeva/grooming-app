@@ -43,7 +43,7 @@ The server already runs **Nginx Proxy Manager (NPM)** on ports 80/443; it owns t
 
 1. Point the domain's DNS A record (e.g. `magic-paws.robodigit.win`) at the server.
 2. Firewall: allow 22, 80 and 443 only. The database and n8n are not published to the public network.
-3. In **Portainer → Stacks → Add stack → Repository**: repository URL `https://github.com/teodoragardjeva/grooming-app.git`, reference `refs/heads/main`, compose path `docker-compose.yml`. Add the variables from section 1 as environment variables (`POSTGRES_PASSWORD`, `TOKEN_HASH_SECRET`, `CRON_SECRET`, `BOT_SECRET`, `N8N_ENCRYPTION_KEY`, `NEXT_PUBLIC_SITE_URL=https://your-domain`, Resend keys, …). Deploy the stack. `NEXT_PUBLIC_SITE_URL` is inlined at build time, so re-deploy with "Re-pull image and redeploy" after changing it.
+3. In **Portainer → Stacks → Add stack → Repository**: repository URL `https://github.com/teodoragardjeva/grooming-app.git`, reference `refs/heads/main`, compose path `docker-compose.yml`. Add the variables from section 1 as environment variables (`POSTGRES_PASSWORD`, `TOKEN_HASH_SECRET`, `CRON_SECRET`, `BOT_SECRET`, `N8N_ENCRYPTION_KEY`, `NEXT_PUBLIC_SITE_URL=https://your-domain`, Resend keys, …). Deploy the stack. Portainer builds the `app` and `migrate` images on the server from the repo (nothing else has to be copied to the server, and the stack uses no bind mounts). `NEXT_PUBLIC_SITE_URL` is inlined at build time, so re-deploy with "Re-pull image and redeploy" after changing it.
 4. In **NPM → Hosts → Proxy Hosts → Add Proxy Host**:
    - Domain Names: your domain (e.g. `magic-paws.robodigit.win`)
    - Scheme: `http`, Forward Hostname / IP: `app`, Forward Port: `3000`

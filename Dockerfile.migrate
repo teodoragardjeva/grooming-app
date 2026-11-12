@@ -1,0 +1,5 @@
+# Migration runner: psql + the db/ folder baked into the image, so the stack needs no bind mounts
+# (bind-mounted relative paths are unreliable when Portainer deploys the stack from Git).
+FROM postgres:16-alpine
+COPY db /db
+ENTRYPOINT ["sh", "/db/migrate.sh"]
