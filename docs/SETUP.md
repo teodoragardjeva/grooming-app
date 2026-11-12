@@ -98,3 +98,6 @@ npm run test:db:down       # remove the test containers
 - Booking returns `not_configured`/503: `DATABASE_URL` or `TOKEN_HASH_SECRET` missing.
 - Booking returns `email_failed`: `RESEND_API_KEY`/`RESEND_FROM` missing or the domain is not verified; check Admin → Журнал.
 - Logs: `docker compose logs -f app`.
+
+## Release a versioned image (manual)
+GitHub → **Actions → Release → Run workflow**: pick the branch, enter a semver version (`1.2.3`, no leading `v`; pre-releases like `1.2.3-rc.1` are fine) and optionally tick "latest". The workflow rejects invalid versions and versions whose tag already exists, builds the image and pushes `ghcr.io/teodoragardjeva/grooming-app:<version>` (plus a `sha-…` tag), then creates the git tag `v<version>`. It does not re-run the tests: release from a commit whose CI is green. The workflow only appears in the Actions list once `release.yml` is on `main`.
