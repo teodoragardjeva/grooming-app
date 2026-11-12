@@ -45,6 +45,7 @@ Newest at the bottom. Format: date · decision · reason.
 | 2026-11-10 | The daily `/api/cron/cleanup` call is made by a small `cron` compose service. | Same behaviour, no platform dependency. |
 | 2026-11-12 | Caddy removed; HTTPS and the domain (magic-paws.robodigit.win) are handled by the Nginx Proxy Manager already running on the server. The `app` service joins the external network `nginx-proxy-manager_default` (as `proxy`) in addition to the default network, and NPM forwards to `app:3000`. | NPM already owns ports 80/443, so Caddy would conflict and duplicate TLS handling. If NPM is recreated under another stack name, update the network name in `docker-compose.yml`. |
 | 2026-11-12 | The `migrate` service is built from `Dockerfile.migrate` (db/ copied into the image) instead of bind-mounting `./db`. | Portainer Git deployments run compose from inside a container, so relative bind mounts can point at the wrong host path; baking the files in makes the stack self-contained. |
+| 2026-11-12 | Manual `Release` workflow (`.github/workflows/release.yml`) builds and pushes a semver-tagged image to GHCR and creates the git tag; `ci.yml` is unchanged. | Lets the owner cut versioned images on demand and pin Portainer to an exact version. |
 
 ## Open items for the owner
 - Final brand name, logo, real photos (the mockup dog images are AI-generated illustrations; real photography preferred for production).
