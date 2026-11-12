@@ -1,5 +1,7 @@
-# Production-like stack: PostgreSQL + migrations + Next.js app + daily housekeeping + Caddy (automatic HTTPS).
-# Configure with a .env file next to this file (see .env.example). Start: docker compose up -d --build
+# Production-like stack: PostgreSQL + migrations + Next.js app + n8n chatbot + daily housekeeping.
+# HTTPS is handled by Nginx Proxy Manager (a separate stack): it reaches the app as http://app:3000 over the
+# external `proxy` network (see the bottom of this file and docs/SETUP.md). No ports are published by this stack.
+# Configure with a .env file next to this file (see env.example). Start: docker compose up -d --build
 name: grooming
 
 services:
@@ -20,7 +22,9 @@ services:
     # Not published to the host. For a local psql: docker compose exec db psql -U grooming
 
   migrate:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
     depends_on:
       db:
         condition: service_healthy
@@ -31,9 +35,6 @@ services:
       PGUSER: ${POSTGRES_USER:-grooming}
       PGPASSWORD: ${POSTGRES_PASSWORD}
       SEED_EXAMPLE_DATA: ${SEED_EXAMPLE_DATA:-0}
-    volumes:
-      - ./db:/db:ro
-    entrypoint: ["sh", "/db/migrate.sh"]
 
   app:
     build:
@@ -62,6 +63,9 @@ services:
       - media:/data/media
     expose:
       - "3000"
+    networks:
+      - default # reaches db and n8n
+      - proxy # reachable by Nginx Proxy Manager as http://app:3000
 
   # Chatbot workflow engine. Same compose network as the app (reaches it as http://app:3000). The webhook is NOT
   # published: only /api/chat in the app can call it. The editor is bound to the server's loopback only; open it with
@@ -109,25 +113,14 @@ services:
           wget -q -O /dev/null --header="Authorization: Bearer $$CRON_SECRET" http://app:3000/api/cron/cleanup || true
         done
 
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    depends_on:
-      - app
-    environment:
-      # Your domain (e.g. example.com) for automatic HTTPS; ":80" serves plain HTTP (local use).
-      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-
 volumes:
   pgdata:
   media:
   n8n_data:
-  caddy_data:
-  caddy_config:
+
+networks:
+  # Network of the Nginx Proxy Manager stack, so NPM can reach `app` by name (http://app:3000).
+  # The name is <NPM stack name>_default; change it if NPM is recreated under a different stack name.
+  proxy:
+    external: true
+    name: nginx-proxy-manager_default

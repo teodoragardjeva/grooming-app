@@ -1,11 +1,11 @@
 # Setup and deployment
 
-The app runs as a Docker Compose stack: **PostgreSQL 16** + one-off **migrations** + the **Next.js app** + a daily **housekeeping** job + **Caddy** (reverse proxy with automatic HTTPS). Everything is defined in `docker-compose.yml`.
+The app runs as a Docker Compose stack: **PostgreSQL 16** + one-off **migrations** + the **Next.js app** + the **n8n** chatbot + a daily **housekeeping** job. HTTPS and the domain are handled by **Nginx Proxy Manager (NPM)**, which already runs on the server (ports 80/443) as a separate stack and forwards to the `app` service over the external `proxy` network. The app stack publishes no ports itself. Everything is defined in `docker-compose.yml`.
 
 | Item | Status | Notes |
 |---|---|---|
 | GitHub repo `teodoragardjeva/grooming-app` | **todo** | Code is not pushed yet. |
-| DigitalOcean droplet + domain | **todo** | See "Deploy to DigitalOcean". |
+| Server + domain + Nginx Proxy Manager | **todo** | See "Deploy behind Nginx Proxy Manager". |
 | `.env` with secrets | **todo** | Copy `env.example` to `.env` (see below). |
 | Admin user | **todo** | `scripts/create-admin.mjs`. |
 | Resend account, API key, verified domain | **todo** | Without a key, booking requests fail with `email_failed` (the hold is released). |
@@ -20,7 +20,6 @@ Copy `env.example` to `.env` next to `docker-compose.yml` (docker compose reads 
 | `POSTGRES_DB`, `POSTGRES_USER` | Default `grooming`. |
 | `SEED_EXAMPLE_DATA` | `1` once, on a fresh database, loads clearly-fake example services/hours. Leave `0` in production. |
 | `NEXT_PUBLIC_SITE_URL` | Final public URL, e.g. `https://example.com` (e-mail links, sitemap, hreflang). Inlined at build time, so rebuild after changing it. |
-| `SITE_ADDRESS` | Domain for Caddy's automatic HTTPS (e.g. `example.com`); `:80` = plain HTTP for local use. |
 | `TOKEN_HASH_SECRET` | Random string ≥ 32 chars (`openssl rand -hex 32`). Changing it invalidates outstanding e-mail links. |
 | `CRON_SECRET` | Random string ≥ 16 chars; the housekeeping job sends it as `Authorization: Bearer …`. |
 | `RESEND_API_KEY`, `RESEND_FROM` | From the Resend dashboard; `RESEND_FROM` must be on a verified domain, e.g. `Магически Лапички <no-reply@your-domain>`. |
@@ -31,7 +30,7 @@ Copy `env.example` to `.env` next to `docker-compose.yml` (docker compose reads 
 cp env.example .env        # then edit it; set SEED_EXAMPLE_DATA=1 for demo data
 docker compose up -d --build
 ```
-The site is on http://localhost. The `migrate` service applies `db/migrations/*.sql` (each file once, tracked in `public.schema_migrations`) before the app starts; re-running `docker compose up -d` applies new migrations.
+The stack publishes no ports (NPM reaches `app` over the Docker network), and the compose file expects the external network `nginx-proxy-manager_default`; for a purely local run use `npm run dev`, or create that network first (`docker network create nginx-proxy-manager_default`) and add a temporary `ports: ["3000:3000"]` to `app` in a local override file. The `migrate` service applies `db/migrations/*.sql` (each file once, tracked in `public.schema_migrations`) before the app starts; re-running `docker compose up -d` applies new migrations.
 
 ## 3. Create the admin user (no public registration exists)
 ```bash
@@ -39,15 +38,20 @@ docker compose run --rm -e ADMIN_EMAIL=you@example.com -e ADMIN_PASSWORD='a long
 ```
 Run it again with a new password to reset one (this also signs the account out everywhere). Then open `/admin/login`. Sessions last 7 days and are stored server-side (`admin_sessions`).
 
-## 4. Deploy to DigitalOcean
-1. Create a **Droplet** (Ubuntu 24.04, at least 2 GB RAM; the image build needs memory) and enable **backups**. Point your domain's A record at the droplet IP.
-2. Install Docker: follow https://docs.docker.com/engine/install/ubuntu/ (then `sudo usermod -aG docker $USER`).
-3. Firewall (DO Cloud Firewall or `ufw`): allow 22, 80 and 443 only. The database is not published to the host.
-4. Get the code on the droplet (`git clone https://github.com/teodoragardjeva/grooming-app.git` once it is pushed), create `.env` with `SITE_ADDRESS=your-domain`, `NEXT_PUBLIC_SITE_URL=https://your-domain` and real secrets.
-5. `docker compose up -d --build`. Caddy obtains the TLS certificate automatically once DNS points at the droplet.
-6. Create the admin user (step 3) and fill in the first-run checklist.
+## 4. Deploy behind Nginx Proxy Manager (Portainer)
+The server already runs **Nginx Proxy Manager (NPM)** on ports 80/443; it owns the domain and HTTPS. This stack publishes no ports and has no reverse proxy of its own. `app` joins NPM's Docker network (declared as `proxy` in `docker-compose.yml`, name `nginx-proxy-manager_default`) so NPM can reach it by name. If NPM is recreated with a different stack name, the network name changes too: update it in `docker-compose.yml`.
 
-Updating: `git pull && docker compose up -d --build`.
+1. Point the domain's DNS A record (e.g. `magic-paws.robodigit.win`) at the server.
+2. Firewall: allow 22, 80 and 443 only. The database and n8n are not published to the public network.
+3. In **Portainer → Stacks → Add stack → Repository**: repository URL `https://github.com/teodoragardjeva/grooming-app.git`, reference `refs/heads/main`, compose path `docker-compose.yml`. Add the variables from section 1 as environment variables (`POSTGRES_PASSWORD`, `TOKEN_HASH_SECRET`, `CRON_SECRET`, `BOT_SECRET`, `N8N_ENCRYPTION_KEY`, `NEXT_PUBLIC_SITE_URL=https://your-domain`, Resend keys, …). Deploy the stack. Portainer builds the `app` and `migrate` images on the server from the repo (nothing else has to be copied to the server, and the stack uses no bind mounts). `NEXT_PUBLIC_SITE_URL` is inlined at build time, so re-deploy with "Re-pull image and redeploy" after changing it.
+4. In **NPM → Hosts → Proxy Hosts → Add Proxy Host**:
+   - Domain Names: your domain (e.g. `magic-paws.robodigit.win`)
+   - Scheme: `http`, Forward Hostname / IP: `app`, Forward Port: `3000`
+   - Enable "Block Common Exploits" and "Websockets Support" (optional)
+   - SSL tab: request a new **Let's Encrypt** certificate, enable **Force SSL** (and HTTP/2)
+5. Create the admin user (section 3, e.g. from the Portainer container console of `app` or `docker compose run`) and fill in the first-run checklist.
+
+Updating: in Portainer open the stack → **Pull and redeploy** (rebuilds the image from the repository).
 
 ## 5. Backups (important)
 Data lives in two Docker volumes: `grooming_pgdata` (database) and `grooming_media` (uploaded images).

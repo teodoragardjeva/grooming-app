@@ -7,7 +7,7 @@ The application features (Phases 0–9) were built earlier; on 2026-11-10 the pr
 ## Migration to PostgreSQL + Docker + DigitalOcean
 - [x] Database: plain PostgreSQL 16 migrations in `db/migrations/` (no RLS, no special roles); admin accounts and sessions tables; `db/migrate.sh`.
 - [x] App: `pg` pool + query builder (`src/lib/db`), own admin login (scrypt + server-side sessions), media on disk (`/media/*`).
-- [x] Docker: multi-stage `Dockerfile` (Next.js standalone), `docker-compose.yml` (db, migrate, app, cron, caddy), `scripts/create-admin.mjs`.
+- [x] Docker: multi-stage `Dockerfile` (Next.js standalone), `docker-compose.yml` (db, migrate, app, n8n, cron; HTTPS via external Nginx Proxy Manager), `scripts/create-admin.mjs`.
 - [x] Tests: SQL tests and use-case integration tests run on a throwaway PostgreSQL container (`docker-compose.test.yml`).
 - [ ] Push the code to `teodoragardjeva/grooming-app`.
 - [ ] Create the DigitalOcean droplet, DNS, `.env`; first deploy (see `docs/SETUP.md`).
@@ -37,7 +37,7 @@ The application features (Phases 0–9) were built earlier; on 2026-11-10 the pr
 
 ## NOT verified (honest gaps)
 - `npm run build` outside Docker and `npm run test:e2e` were not re-run after the migration (the Docker image build runs `next build` and succeeded).
-- Real e-mail delivery (no Resend key), HTTPS/Caddy with a real domain, and a DigitalOcean deployment have not been done.
+- Real e-mail delivery (no Resend key), HTTPS via Nginx Proxy Manager with the real domain, and a DigitalOcean deployment have not been done.
 - `tests/e2e/booking.spec.ts` (live booking + admin login) is gated on `E2E_LIVE=1` and has not been run.
 - The CI workflow has not run on GitHub yet.
 - No manual screen-reader pass.
