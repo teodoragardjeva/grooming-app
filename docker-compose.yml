@@ -37,11 +37,9 @@ services:
       SEED_EXAMPLE_DATA: ${SEED_EXAMPLE_DATA:-0}
 
   app:
-    build:
-      context: .
-      args:
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
-        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+    # Prebuilt image from GHCR (built by the CI publish job / the manual Release workflow).
+    # APP_IMAGE_TAG: a semver version such as 1.2.3 (Release workflow), `latest` (last build of main) or sha-<commit>.
+    image: ghcr.io/teodoragardjeva/grooming-app:${APP_IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       db:
