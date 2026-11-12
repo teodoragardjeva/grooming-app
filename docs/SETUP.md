@@ -27,8 +27,8 @@ Copy `env.example` to `.env` next to `docker-compose.yml` (docker compose reads 
 
 ## 2. Run locally with Docker
 ```bash
-cp env.example .env        # then edit it; set SEED_EXAMPLE_DATA=1 for demo data
-docker compose up -d --build
+cp env.example .env        # then edit it; set SEED_EXAMPLE_DATA=1 for demo data, APP_IMAGE_TAG to the image tag
+docker compose pull && docker compose up -d   # uses the GHCR image; for code changes use `npm run dev`
 ```
 The stack publishes no ports (NPM reaches `app` over the Docker network), and the compose file expects the external network `nginx-proxy-manager_default`; for a purely local run use `npm run dev`, or create that network first (`docker network create nginx-proxy-manager_default`) and add a temporary `ports: ["3000:3000"]` to `app` in a local override file. The `migrate` service applies `db/migrations/*.sql` (each file once, tracked in `public.schema_migrations`) before the app starts; re-running `docker compose up -d` applies new migrations.
 
@@ -43,7 +43,7 @@ The server already runs **Nginx Proxy Manager (NPM)** on ports 80/443; it owns t
 
 1. Point the domain's DNS A record (e.g. `magic-paws.robodigit.win`) at the server.
 2. Firewall: allow 22, 80 and 443 only. The database and n8n are not published to the public network.
-3. In **Portainer → Stacks → Add stack → Repository**: repository URL `https://github.com/teodoragardjeva/grooming-app.git`, reference `refs/heads/main`, compose path `docker-compose.yml`. Add the variables from section 1 as environment variables (`POSTGRES_PASSWORD`, `TOKEN_HASH_SECRET`, `CRON_SECRET`, `BOT_SECRET`, `N8N_ENCRYPTION_KEY`, `NEXT_PUBLIC_SITE_URL=https://your-domain`, Resend keys, …). Deploy the stack. Portainer builds the `app` and `migrate` images on the server from the repo (nothing else has to be copied to the server, and the stack uses no bind mounts). `NEXT_PUBLIC_SITE_URL` is inlined at build time, so re-deploy with "Re-pull image and redeploy" after changing it.
+3. In **Portainer → Stacks → Add stack → Repository**: repository URL `https://github.com/teodoragardjeva/grooming-app.git`, reference `refs/heads/main`, compose path `docker-compose.yml`. Add the variables from section 1 as environment variables (`POSTGRES_PASSWORD`, `TOKEN_HASH_SECRET`, `CRON_SECRET`, `BOT_SECRET`, `N8N_ENCRYPTION_KEY`, `NEXT_PUBLIC_SITE_URL=https://your-domain`, Resend keys, …). Deploy the stack. Set `APP_IMAGE_TAG` to the version to run (e.g. `1.2.3`; default `latest`). Portainer pulls the `app` image from GHCR (the package must be public, or add a GHCR registry with a GitHub token in Portainer) and builds only the tiny `migrate` image on the server; the stack uses no bind mounts. `NEXT_PUBLIC_SITE_URL` is inlined at build time, so re-deploy with "Re-pull image and redeploy" after changing it.
 4. In **NPM → Hosts → Proxy Hosts → Add Proxy Host**:
    - Domain Names: your domain (e.g. `magic-paws.robodigit.win`)
    - Scheme: `http`, Forward Hostname / IP: `app`, Forward Port: `3000`
@@ -51,7 +51,7 @@ The server already runs **Nginx Proxy Manager (NPM)** on ports 80/443; it owns t
    - SSL tab: request a new **Let's Encrypt** certificate, enable **Force SSL** (and HTTP/2)
 5. Create the admin user (section 3, e.g. from the Portainer container console of `app` or `docker compose run`) and fill in the first-run checklist.
 
-Updating: in Portainer open the stack → **Pull and redeploy** (rebuilds the image from the repository).
+Updating: run the Release workflow (see below), then in Portainer open the stack → change `APP_IMAGE_TAG` to the new version → **Update the stack** (enable "Re-pull image"). `NEXT_PUBLIC_SITE_URL` is baked into the image at build time: set it as the GitHub repository variable `NEXT_PUBLIC_SITE_URL`, not in Portainer.
 
 ## 5. Backups (important)
 Data lives in two Docker volumes: `grooming_pgdata` (database) and `grooming_media` (uploaded images).
