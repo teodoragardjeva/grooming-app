@@ -47,6 +47,7 @@ Newest at the bottom. Format: date · decision · reason.
 | 2026-11-12 | The `migrate` service is built from `Dockerfile.migrate` (db/ copied into the image) instead of bind-mounting `./db`. | Portainer Git deployments run compose from inside a container, so relative bind mounts can point at the wrong host path; baking the files in makes the stack self-contained. |
 | 2026-11-12 | Manual `Release` workflow (`.github/workflows/release.yml`) builds and pushes a semver-tagged image to GHCR and creates the git tag; `ci.yml` is unchanged. | Lets the owner cut versioned images on demand and pin Portainer to an exact version. |
 | 2026-11-12 | `app` runs the prebuilt GHCR image `ghcr.io/teodoragardjeva/grooming-app:${APP_IMAGE_TAG:-latest}` instead of building on the server; the tag is chosen in Portainer. | Reproducible deploys of an exact version, faster redeploys, easy rollback. `NEXT_PUBLIC_*` values are fixed at image build time (GitHub repository variables). |
+| 2026-11-13 | Chatbot memory uses n8n's Postgres Chat Memory (table `n8n_chat_histories` in the app database) instead of the in-memory window buffer. Guardrails (jailbreak, NSFW) run before the agent and blocked messages get a polite `reply`. | In-memory history is lost on every n8n restart/redeploy. Chat history contains visitor personal data: it is covered by the database backups and should be purged per the retention policy. |
 
 ## Open items for the owner
 - Final brand name, logo, real photos (the mockup dog images are AI-generated illustrations; real photography preferred for production).

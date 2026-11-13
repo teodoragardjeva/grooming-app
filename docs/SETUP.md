@@ -69,7 +69,7 @@ Schedule these (cron on the droplet) and copy the files off the droplet (e.g. to
 The `n8n` service runs in the same compose network as the app. Set `BOT_SECRET` and `N8N_ENCRYPTION_KEY` in `.env` (`openssl rand -hex 32` each).
 1. Open the editor through an SSH tunnel (it is bound to the server's loopback only): `ssh -L 5678:localhost:5678 user@server`, then http://localhost:5678, and create the owner account.
 2. Import `n8n/grooming-chatbot.workflow.json` (Workflows → Import from file; or `docker compose exec n8n n8n import:workflow --input=...`).
-3. Open the **OpenAI Chat Model** node, create an OpenAI credential with your API key, and select it.
+3. Open the **OpenAI Chat Model** node, create an OpenAI credential with your API key, and select it. Then open **Postgres Chat Memory** and create a Postgres credential: host `db`, port `5432`, database and user from your `.env` (`POSTGRES_DB`, `POSTGRES_USER`), password `POSTGRES_PASSWORD`, SSL disabled. Chat history is stored in the table `n8n_chat_histories` (created automatically) in the app database, so it survives n8n restarts.
 4. Toggle the workflow **Active**. The visitor chat bubble (`/api/chat`) then works; until then it answers that the chat is unavailable.
 5. Test: ask for an appointment in the bubble. Without Resend configured, the final booking step returns `email_failed` and nothing is booked.
 
