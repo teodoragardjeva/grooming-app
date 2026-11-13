@@ -63,8 +63,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        0,
-        176
+        -176,
+        224
       ]
     },
     {
@@ -365,6 +365,21 @@
       ],
       "id": "adf8a05f-ecdd-4a1f-8551-088dc85f5bd7",
       "name": "Guardrails"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { reply: \"I can assist you with information related only to 'Магически лапички' / 'Magic Paws'.\" } }}",
+        "options": {}
+      },
+      "id": "6e89ef5c-e5aa-4055-b7b6-1a0e2955b2e5",
+      "name": "Reply to jailbreak",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        128,
+        176
+      ]
     }
   ],
   "connections": {
@@ -490,7 +505,7 @@
         ],
         [
           {
-            "node": "Reject",
+            "node": "Reply to jailbreak",
             "type": "main",
             "index": 0
           }
