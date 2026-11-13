@@ -106,21 +106,6 @@
     },
     {
       "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Webhook').first().json.body.sessionId }}",
-        "contextWindowLength": 16
-      },
-      "id": "85fbd8cc-1544-452f-971e-0240dac9d5a2",
-      "name": "Chat memory",
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.3,
-      "position": [
-        464,
-        176
-      ]
-    },
-    {
-      "parameters": {
         "toolDescription": "Връща списък с услугите, които могат да се резервират, с id, имена, режим на продължителност (fixed/size_based), цени в евроцентове и варианти по размер. Извикай го преди да предложиш услуга.",
         "url": "={{ $env.APP_BASE_URL }}/api/services",
         "sendHeaders": true,
@@ -380,6 +365,22 @@
         128,
         176
       ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').first().json.body.sessionId }}",
+        "tableName": "n8n_chat_histories",
+        "contextWindowLength": 16
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        464,
+        176
+      ],
+      "id": "122681dd-8c01-4bcf-9d2f-4d0f998dbc9a",
+      "name": "Postgres Chat Memory"
     }
   ],
   "connections": {
@@ -434,17 +435,6 @@
           {
             "node": "Guardrails",
             "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Chat memory": {
-      "ai_memory": [
-        [
-          {
-            "node": "Booking assistant",
-            "type": "ai_memory",
             "index": 0
           }
         ]
@@ -507,6 +497,17 @@
           {
             "node": "Reply to jailbreak",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Booking assistant",
+            "type": "ai_memory",
             "index": 0
           }
         ]
