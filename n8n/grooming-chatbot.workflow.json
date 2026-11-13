@@ -369,9 +369,7 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Webhook').first().json.body.sessionId }}",
-        "tableName": "n8n_chat_histories",
-        "contextWindowLength": 16
+        "sessionKey": "={{ $('Webhook').first().json.body.sessionId }}"
       },
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.4,
