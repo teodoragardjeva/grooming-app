@@ -1,4 +1,5 @@
 {
+  "id": "gRm7Ch4tB0tWf2Kq",
   "name": "Grooming chatbot",
   "nodes": [
     {
@@ -103,7 +104,13 @@
       "position": [
         368,
         176
-      ]
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "tKExvAISwxBSqOXn",
+          "name": "OpenAI account"
+        }
+      }
     },
     {
       "parameters": {
@@ -473,7 +480,13 @@
         192
       ],
       "id": "122681dd-8c01-4bcf-9d2f-4d0f998dbc9a",
-      "name": "Postgres Chat Memory"
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "QoPx9gvYB4SbPKSO",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "connections": {

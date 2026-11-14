@@ -66,14 +66,19 @@ docker run --rm -v grooming_media:/data -v "$PWD":/out alpine tar czf /out/media
 Schedule these (cron on the droplet) and copy the files off the droplet (e.g. to a DigitalOcean Space). DO droplet backups are an additional safety net, not a replacement for tested dumps.
 
 ## 5b. Chatbot (n8n)
-The `n8n` service runs in the same compose network as the app. Set `BOT_SECRET` and `N8N_ENCRYPTION_KEY` in `.env` (`openssl rand -hex 32` each).
-1. Open the editor through an SSH tunnel (it is bound to the server's loopback only): `ssh -L 5678:localhost:5678 user@server`, then http://localhost:5678, and create the owner account.
-2. Import `n8n/grooming-chatbot.workflow.json` (Workflows → Import from file; or `docker compose exec n8n n8n import:workflow --input=...`).
-3. Open the **OpenAI Chat Model** node, create an OpenAI credential with your API key, and select it. Then open **Postgres Chat Memory** and create a Postgres credential: host `db`, port `5432`, database and user from your `.env` (`POSTGRES_DB`, `POSTGRES_USER`), password `POSTGRES_PASSWORD`, SSL disabled. Chat history is stored in the table `n8n_chat_histories` (the node default, created automatically) in the app database, so it survives n8n restarts.
-4. Toggle the workflow **Active**. The visitor chat bubble (`/api/chat`) then works; until then it answers that the chat is unavailable.
-5. Test: ask for an appointment in the bubble. Without Resend configured, the final booking step returns `email_failed` and nothing is booked.
+**Git is the source of truth for the workflow.** `n8n/grooming-chatbot.workflow.json` is baked into the image `ghcr.io/teodoragardjeva/grooming-n8n` (built by the CI `publish` job from `n8n/Dockerfile`). On every start of the `n8n` container the file is imported (matched by its fixed workflow `id`) and activated, then n8n starts normally. **Every redeploy overwrites the workflow in n8n**, so changes made only in the editor are lost.
 
-The webhook is reachable only inside the Docker network. If you change the webhook path in the workflow, change `N8N_CHAT_WEBHOOK_URL` in `docker-compose.yml` too.
+Set `BOT_SECRET` and `N8N_ENCRYPTION_KEY` in the stack environment (`openssl rand -hex 32` each).
+
+**First-time setup (once, on a fresh n8n volume):**
+1. Open the editor through an SSH tunnel (it is bound to the server's loopback only): `ssh -L 5678:localhost:5678 user@server`, then http://localhost:5678, and create the owner account.
+2. Create the credentials in n8n: an **OpenAI** credential (your API key) and a **Postgres** credential (host `db`, port `5432`, database/user/password from the stack variables `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, SSL disabled).
+3. The workflow file references credentials by **id** (`OpenAI account` = `tKExvAISwxBSqOXn`, `Postgres account` = `QoPx9gvYB4SbPKSO`). A freshly created credential gets a different id: either re-select it in the two nodes, export the workflow and commit it, or restore the same credentials. Credentials are never stored in git; they live in the n8n volume (`n8n_data`) and are decrypted with `N8N_ENCRYPTION_KEY`, so they survive only while that volume and key exist.
+4. The visitor chat bubble (`/api/chat`) works once the workflow is active (the entrypoint activates it). Test by asking for an appointment; without Resend configured the final booking step returns `email_failed` and nothing is booked.
+
+**Changing the workflow:** edit it in the n8n editor, then export it (workflow menu → Download), replace `n8n/grooming-chatbot.workflow.json` (keep the `id`; do not commit secrets; `instanceId` can be removed), commit, merge to `main`, and redeploy (set `N8N_IMAGE_TAG` to the new `sha-…` tag or use `latest` with re-pull). Chat history is stored in `n8n_chat_histories` in the app database.
+
+The webhook is reachable only inside the Docker network. If you change the webhook path in the workflow, change `N8N_CHAT_WEBHOOK_URL` in `docker-compose.yml` too. If the import fails, the container log shows `[workflow-import] ERROR` and n8n still starts with whatever workflow is already in the volume.
 
 ## 6. Housekeeping
 The `cron` service calls `/api/cron/cleanup` once a day (expired holds, old tokens/sessions). Correctness never depends on it: expired holds are also released at request time.

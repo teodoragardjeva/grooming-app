@@ -69,7 +69,8 @@ services:
   # published: only /api/chat in the app can call it. The editor is bound to the server's loopback only; open it with
   # an SSH tunnel (ssh -L 5678:localhost:5678 user@server) until it is put behind the reverse proxy with auth.
   n8n:
-    image: n8nio/n8n:latest
+    # n8n with the chatbot workflow baked in (n8n/Dockerfile); the workflow is re-imported from git on every start.
+    image: ghcr.io/teodoragardjeva/grooming-n8n:${N8N_IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       - app
