@@ -19,6 +19,7 @@ Copy `env.example` to `.env` next to `docker-compose.yml` (docker compose reads 
 | `POSTGRES_PASSWORD` | Long random password for the database user. |
 | `POSTGRES_DB`, `POSTGRES_USER` | Default `grooming`. |
 | `SEED_EXAMPLE_DATA` | `1` once, on a fresh database, loads clearly-fake example services/hours. Leave `0` in production. |
+| `APP_IMAGE_TAG`, `N8N_IMAGE_TAG` | Tags of the `grooming-app` / `grooming-n8n` images to run: a version (`1.2.3`, app only), `latest`, or `sha-<commit>`. Re-pull the image when redeploying. |
 | `NEXT_PUBLIC_SITE_URL` | Final public URL, e.g. `https://example.com` (e-mail links, sitemap, hreflang). Inlined at build time, so rebuild after changing it. |
 | `TOKEN_HASH_SECRET` | Random string ≥ 32 chars (`openssl rand -hex 32`). Changing it invalidates outstanding e-mail links. |
 | `CRON_SECRET` | Random string ≥ 16 chars; the housekeeping job sends it as `Authorization: Bearer …`. |
@@ -66,7 +67,7 @@ docker run --rm -v grooming_media:/data -v "$PWD":/out alpine tar czf /out/media
 Schedule these (cron on the droplet) and copy the files off the droplet (e.g. to a DigitalOcean Space). DO droplet backups are an additional safety net, not a replacement for tested dumps.
 
 ## 5b. Chatbot (n8n)
-**Git is the source of truth for the workflow.** `n8n/grooming-chatbot.workflow.json` is baked into the image `ghcr.io/teodoragardjeva/grooming-n8n` (built by the CI `publish` job from `n8n/Dockerfile`). On every start of the `n8n` container the file is imported (matched by its fixed workflow `id`) and activated, then n8n starts normally. **Every redeploy overwrites the workflow in n8n**, so changes made only in the editor are lost.
+**Git is the source of truth for the workflow.** `n8n/grooming-chatbot.workflow.json` is baked into the image `ghcr.io/teodoragardjeva/grooming-n8n` (built by the CI `publish` job from `n8n/Dockerfile`). On start, the `n8n` container imports the file (matched by its fixed workflow `id`) and activates it, then n8n starts normally. The import runs only when the file differs from the last successfully imported version (a hash is kept in the n8n volume), so plain restarts do not touch the workflow. **Deploying a new image with a changed workflow overwrites the workflow in n8n**, so changes made only in the editor are lost.
 
 Set `BOT_SECRET` and `N8N_ENCRYPTION_KEY` in the stack environment (`openssl rand -hex 32` each).
 
@@ -74,11 +75,11 @@ Set `BOT_SECRET` and `N8N_ENCRYPTION_KEY` in the stack environment (`openssl ran
 1. Open the editor through an SSH tunnel (it is bound to the server's loopback only): `ssh -L 5678:localhost:5678 user@server`, then http://localhost:5678, and create the owner account.
 2. Create the credentials in n8n: an **OpenAI** credential (your API key) and a **Postgres** credential (host `db`, port `5432`, database/user/password from the stack variables `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, SSL disabled).
 3. The workflow file references credentials by **id** (`OpenAI account` = `tKExvAISwxBSqOXn`, `Postgres account` = `QoPx9gvYB4SbPKSO`). A freshly created credential gets a different id: either re-select it in the two nodes, export the workflow and commit it, or restore the same credentials. Credentials are never stored in git; they live in the n8n volume (`n8n_data`) and are decrypted with `N8N_ENCRYPTION_KEY`, so they survive only while that volume and key exist.
-4. The visitor chat bubble (`/api/chat`) works once the workflow is active (the entrypoint activates it). Test by asking for an appointment; without Resend configured the final booking step returns `email_failed` and nothing is booked.
+4. **Restart the `n8n` container once** after creating the owner and credentials (on a fresh volume the first start imports before they exist, so the import fails and is retried on the next start). The entrypoint then imports and activates the workflow, and the visitor chat bubble (`/api/chat`) works. Test by asking for an appointment; without Resend configured the final booking step returns `email_failed` and nothing is booked.
 
 **Changing the workflow:** edit it in the n8n editor, then export it (workflow menu → Download), replace `n8n/grooming-chatbot.workflow.json` (keep the `id`; do not commit secrets; `instanceId` can be removed), commit, merge to `main`, and redeploy (set `N8N_IMAGE_TAG` to the new `sha-…` tag or use `latest` with re-pull). Chat history is stored in `n8n_chat_histories` in the app database.
 
-The webhook is reachable only inside the Docker network. If you change the webhook path in the workflow, change `N8N_CHAT_WEBHOOK_URL` in `docker-compose.yml` too. If the import fails, the container log shows `[workflow-import] ERROR` and n8n still starts with whatever workflow is already in the volume.
+The webhook is reachable only inside the Docker network. If you change the webhook path in the workflow, change `N8N_CHAT_WEBHOOK_URL` in `docker-compose.yml` too. If the import or activation fails, the container log shows `[workflow-import] ERROR`/`WARNING`, n8n still starts with whatever workflow is already in the volume, and the import is retried on the next start. Check the log (`docker logs <n8n container>`) after a deploy; a failed activation leaves the chatbot unavailable without any other alert.
 
 ## 6. Housekeeping
 The `cron` service calls `/api/cron/cleanup` once a day (expired holds, old tokens/sessions). Correctness never depends on it: expired holds are also released at request time.

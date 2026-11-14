@@ -44,6 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t grooming-app .
+      - run: docker build -t grooming-n8n n8n
 
   e2e:
     runs-on: ubuntu-latest
