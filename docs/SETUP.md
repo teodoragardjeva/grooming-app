@@ -19,7 +19,7 @@ Copy `env.example` to `.env` next to `docker-compose.yml` (docker compose reads 
 | `POSTGRES_PASSWORD` | Long random password for the database user. |
 | `POSTGRES_DB`, `POSTGRES_USER` | Default `grooming`. |
 | `SEED_EXAMPLE_DATA` | `1` once, on a fresh database, loads clearly-fake example services/hours. Leave `0` in production. |
-| `APP_IMAGE_TAG`, `N8N_IMAGE_TAG` | Tags of the `grooming-app` / `grooming-n8n` images to run: a version (`1.2.3`, app only), `latest`, or `sha-<commit>`. Re-pull the image when redeploying. |
+| `APP_IMAGE_TAG`, `N8N_IMAGE_TAG` | Tags of the `grooming-app` / `grooming-n8n` images to run: a version from the Release workflow (`1.2.3`), `latest`, or `sha-<commit>`. Re-pull the image when redeploying. |
 | `NEXT_PUBLIC_SITE_URL` | Final public URL, e.g. `https://example.com` (e-mail links, sitemap, hreflang). Inlined at build time, so rebuild after changing it. |
 | `TOKEN_HASH_SECRET` | Random string ≥ 32 chars (`openssl rand -hex 32`). Changing it invalidates outstanding e-mail links. |
 | `CRON_SECRET` | Random string ≥ 16 chars; the housekeeping job sends it as `Authorization: Bearer …`. |
@@ -106,4 +106,4 @@ npm run test:db:down       # remove the test containers
 - Logs: `docker compose logs -f app`.
 
 ## Release a versioned image (manual)
-GitHub → **Actions → Release → Run workflow**: pick the branch, enter a semver version (`1.2.3`, no leading `v`; pre-releases like `1.2.3-rc.1` are fine) and optionally tick "latest". The workflow rejects invalid versions and versions whose tag already exists, builds the image and pushes `ghcr.io/teodoragardjeva/grooming-app:<version>` (plus a `sha-…` tag), then creates the git tag `v<version>`. It does not re-run the tests: release from a commit whose CI is green. The workflow only appears in the Actions list once `release.yml` is on `main`.
+GitHub → **Actions → Release → Run workflow**: pick the branch, enter a semver version (`1.2.3`, no leading `v`; pre-releases like `1.2.3-rc.1` are fine) and optionally tick "latest". The workflow rejects invalid versions and versions whose tag already exists, builds **both images** from the same commit and pushes `ghcr.io/teodoragardjeva/grooming-app:<version>` and `ghcr.io/teodoragardjeva/grooming-n8n:<version>` (each plus a `sha-…` tag; "latest" moves both), then creates the git tag `v<version>`. To deploy that version, set both `APP_IMAGE_TAG` and `N8N_IMAGE_TAG` to it in Portainer, so one version identifies a matching pair of website and chatbot workflow. It does not re-run the tests: release from a commit whose CI is green. The workflow only appears in the Actions list once `release.yml` is on `main`.
