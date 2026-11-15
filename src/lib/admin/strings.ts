@@ -13,7 +13,7 @@ export const S = {
     overrideNotice: "Игнорирай минималното време за предизвестие", sendEmail: "Изпрати имейл с потвърждение", create: "Създай час", created: "Часът е създаден.",
     cancelTitle: "Отказване на час", reason: "Причина (по желание)", notify: "Уведоми клиента по имейл", cancelConfirm: "Да, откажи часа", cancelled: "Часът е отказан.",
     rescheduleTitle: "Преместване", newStart: "Нов начален час", reschedule: "Премести", rescheduled: "Часът е преместен.",
-    markCompleted: "Маркирай като приключен", markNoShow: "Маркирай като неявил се", statusSaved: "Статусът е обновен.", history: "История", when: "Кога", price: "Цена", source: "Източник", sourceAdmin: "Ръчно (админ)", sourcePublic: "Онлайн", saveNotes: "Запази бележките",
+    markCompleted: "Маркирай като приключен", markNoShow: "Маркирай като неявил се", statusSaved: "Статусът е обновен.", history: "История", when: "Кога", price: "Цена", source: "Източник", sourceAdmin: "Ръчно (админ)", sourcePublic: "Онлайн", promotion: "Оферта", promotionHint: "Клиентът е резервирал от тази оферта. Цената не е променена: решавате на място дали да я приложите.", promotionBadge: "Оферта", saveNotes: "Запази бележките",
     emailSent: "Имейлът е изпратен.", emailFailed: "Действието е изпълнено, но имейлът не бе изпратен.",
     noEmail: "Клиентът няма имейл.", slotRequired: "Изберете услуга, дата и час.",
   },

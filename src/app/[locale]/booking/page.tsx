@@ -5,7 +5,7 @@ import type { BookingService } from "@/components/booking/types";
 import { PageHero, PageSection } from "@/components/page-hero";
 import { resolveLocale, type LocaleParams } from "@/i18n/locale";
 import { pick } from "@/lib/content/locale";
-import { getServices, getSettings } from "@/lib/content/queries";
+import { getPromotions, getServices, getSettings } from "@/lib/content/queries";
 import { pageMetadata } from "@/lib/seo/page-metadata";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 
@@ -15,11 +15,11 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   return pageMetadata(await resolveLocale(params), "/booking", "booking");
 }
 
-export default async function Page({ params, searchParams }: LocaleParams & { searchParams: Promise<{ service?: string }> }) {
+export default async function Page({ params, searchParams }: LocaleParams & { searchParams: Promise<{ service?: string; promo?: string }> }) {
   const locale = await resolveLocale(params);
-  const { service } = await searchParams;
+  const { service, promo: promoId } = await searchParams;
   const t = await getTranslations();
-  const [settings, services] = await Promise.all([getSettings(), getServices()]);
+  const [settings, services, promotions] = await Promise.all([getSettings(), getServices(), getPromotions()]);
 
   const items: BookingService[] = services
     .filter((s) => s.booking_enabled)
@@ -36,6 +36,11 @@ export default async function Page({ params, searchParams }: LocaleParams & { se
         : [],
     }));
 
+  // Informational promotion the customer came from (only published, currently active ones are returned).
+  const promo = promoId ? promotions.find((p) => p.id === promoId) : undefined;
+  const promoServiceId = promo && promo.service_ids.length === 1 ? promo.service_ids[0] : undefined;
+  const initialServiceId = [service, promoServiceId].find((id) => id && items.some((i) => i.id === id));
+
   return (
     <>
       <BreadcrumbJsonLd page="booking" path="/booking" />
@@ -48,7 +53,8 @@ export default async function Page({ params, searchParams }: LocaleParams & { se
             horizonDays={settings.horizon_days}
             holdMinutes={settings.confirmation_ttl_minutes}
             turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined}
-            initialServiceId={items.some((i) => i.id === service) ? service : undefined}
+            initialServiceId={initialServiceId}
+            promotion={promo ? { id: promo.id, title: pick(locale, promo.title_bg, promo.title_en) } : undefined}
           />
         ) : (
           <p className="rounded-2xl bg-parchment-100 p-6 text-lg">{t("booking.notConfigured")}</p>

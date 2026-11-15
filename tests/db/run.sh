@@ -329,6 +329,39 @@ sql "insert into admin_sessions(token_hash,user_id,expires_at) select 'old', use
 eq "housekeeping removes only expired sessions"  "live" "$(sql "select public.housekeeping('2026-11-30 08:00:00+00') is not null; select token_hash from admin_sessions" | tail -1)"
 eq "deleting an admin removes their sessions"    "0" "$(sql "delete from admin_profiles; select count(*) from admin_sessions" | tail -1)"
 
+echo "# 30 informational promotion on an appointment"
+fresh promo
+NOW="2026-11-30 08:00:00+00"
+PN=10000000-0000-4000-8000-000000000001   # published, valid, only for NAIL
+PU=10000000-0000-4000-8000-000000000002   # not published
+PE=10000000-0000-4000-8000-000000000003   # expired
+PF=10000000-0000-4000-8000-000000000004   # published, only for FULL
+PA=10000000-0000-4000-8000-000000000005   # published, all services
+sql "insert into promotions(id,title_bg,title_en,is_published,starts_at,ends_at,service_ids) values
+  ('$PN','Пролетна оферта','Spring offer',true,'2026-11-01 00:00+00','2026-12-31 00:00+00','{$NAIL}'),
+  ('$PU','Неактивна',null,false,null,null,'{}'),
+  ('$PE','Изтекла',null,true,null,'2026-11-15 00:00+00','{}'),
+  ('$PF','Само пълна услуга',null,true,null,null,'{$FULL}'),
+  ('$PA','За всички',null,true,null,null,'{}')" >/dev/null
+A1=$(sql "select t.book('$D 12:00+02')->>'appointment_id'")
+PRICE=$(sql "select price_cents from appointments where id='$A1'")
+eq "valid promotion is attached"                  "t" "$(sql "select (public.attach_promotion('$A1','$PN','$NOW')->>'ok')::boolean")"
+eq "promotion title is copied (bg)"               "Пролетна оферта" "$(sql "select promotion_title_bg from appointments where id='$A1'")"
+eq "promotion title is copied (en)"               "Spring offer" "$(sql "select promotion_title_en from appointments where id='$A1'")"
+eq "price is not changed by the promotion"        "$PRICE" "$(sql "select price_cents from appointments where id='$A1'")"
+A2=$(sql "select t.book('$D 13:00+02')->>'appointment_id'")
+eq "unpublished promotion is ignored"             "f" "$(sql "select (public.attach_promotion('$A2','$PU','$NOW')->>'ok')::boolean")"
+eq "expired promotion is ignored"                 "f" "$(sql "select (public.attach_promotion('$A2','$PE','$NOW')->>'ok')::boolean")"
+eq "promotion for another service is ignored"     "f" "$(sql "select (public.attach_promotion('$A2','$PF','$NOW')->>'ok')::boolean")"
+eq "unknown promotion id is ignored"              "f" "$(sql "select (public.attach_promotion('$A2','10000000-0000-4000-8000-0000000000ff','$NOW')->>'ok')::boolean")"
+eq "nothing was attached by the failed attempts"  "" "$(sql "select coalesce(promotion_id::text,'') from appointments where id='$A2'")"
+eq "promotion without service list applies to any service" "t" "$(sql "select (public.attach_promotion('$A2','$PA','$NOW')->>'ok')::boolean")"
+A3=$(sql "select t.book('$D 14:00+02',p_source=>'admin')->>'appointment_id'")
+eq "admin-created (confirmed) appointment is not touched" "f" "$(sql "select (public.attach_promotion('$A3','$PA','$NOW')->>'ok')::boolean")"
+sql "delete from promotions where id='$PN'" >/dev/null
+eq "deleting the promotion keeps the copied title" "Пролетна оферта" "$(sql "select promotion_title_bg from appointments where id='$A1'")"
+eq "deleting the promotion clears the link"       "" "$(sql "select coalesce(promotion_id::text,'') from appointments where id='$A1'")"
+
 echo
 echo "RESULT: $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 ]]

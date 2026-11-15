@@ -21,6 +21,11 @@ describe("booking request schema", () => {
     expect(msgs).toContain("email_invalid");
     expect(msgs).toContain("phone_invalid");
   });
+  it("accepts an optional promotion id and rejects a malformed one", () => {
+    expect(bookingRequestSchema.safeParse({ ...base, promotionId: "10000000-0000-4000-8000-000000000001" }).success).toBe(true);
+    expect(bookingRequestSchema.safeParse({ ...base, promotionId: "not-a-uuid" }).success).toBe(false);
+    expect(bookingRequestSchema.safeParse(base).success).toBe(true);
+  });
   it("rejects unknown locale", () => expect(bookingRequestSchema.safeParse({ ...base, locale: "de" }).success).toBe(false));
 });
 
