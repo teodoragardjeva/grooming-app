@@ -21,6 +21,7 @@ export type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
 export const bookingRequestSchema = bookingFormSchema.extend({
   locale: z.enum(["bg", "en"]),
+  promotionId: z.uuid().optional(), // informational only: the promotion the customer booked from
   website: z.string().max(0).optional(), // honeypot: must stay empty
   turnstileToken: z.string().max(4096).optional(),
 });

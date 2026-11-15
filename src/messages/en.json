@@ -112,6 +112,8 @@
     "back": "Back to home"
   },
   "booking": {
+    "promoNoticeTitle": "Offer: {title}.",
+    "promoNoticeBody": "The offer is noted with your appointment. Whether and how it applies is confirmed with the studio on site; the price shown below is the regular price of the service.",
     "stepService": "Service",
     "stepDate": "Date & time",
     "stepDetails": "Your details",
@@ -229,7 +231,7 @@
     },
     "closed": "Closed",
     "promoBadge": "Special offer",
-    "promoCta": "Book with this offer",
+    "promoCta": "Book this offer",
     "allPromos": "All promotions"
   },
   "legal": {

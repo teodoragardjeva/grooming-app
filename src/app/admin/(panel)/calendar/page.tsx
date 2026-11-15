@@ -99,7 +99,7 @@ function DayView({ date, data }: { date: string; data: CalData }) {
               {a.prep_buffer_minutes > 0 && <div aria-hidden="true" className="pointer-events-none absolute left-1 right-1 z-10 rounded-t bg-burgundy-900/10" style={{ top: (s - a.prep_buffer_minutes - from) * PX, height: a.prep_buffer_minutes * PX }} />}
               {a.cleanup_buffer_minutes > 0 && <div aria-hidden="true" className="pointer-events-none absolute left-1 right-1 z-10 rounded-b bg-burgundy-900/10" style={{ top: (e - from) * PX, height: a.cleanup_buffer_minutes * PX }} />}
               <Link href={`/admin/appointments/${a.id}`} className={`absolute left-1 right-1 z-20 overflow-hidden rounded border-2 px-2 py-0.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500 ${tone(a.status)}`} style={{ top: (s - from) * PX, height: Math.max((e - s) * PX, 18) }}>
-                <strong>{fmtTime(a.start_at)}–{fmtTime(a.end_at)}</strong> {a.customer_name}{a.dog_name ? ` (${a.dog_name})` : ""} · {a.service_name_bg}{a.variant_label_bg ? ` · ${a.variant_label_bg}` : ""}
+                <strong>{fmtTime(a.start_at)}–{fmtTime(a.end_at)}</strong> {a.customer_name}{a.dog_name ? ` (${a.dog_name})` : ""} · {a.service_name_bg}{a.variant_label_bg ? ` · ${a.variant_label_bg}` : ""}{a.promotion_title_bg ? ` · ${S.appt.promotionBadge}: ${a.promotion_title_bg}` : ""}
                 <span className="sr-only"> – {S.status[a.status]}</span>
               </Link>
             </div>

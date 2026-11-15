@@ -29,6 +29,7 @@ interface Props {
   holdMinutes: number;
   turnstileSiteKey?: string;
   initialServiceId?: string;
+  promotion?: { id: string; title: string };
 }
 
 declare global {
@@ -37,7 +38,7 @@ declare global {
   }
 }
 
-export function BookingFlow({ services, currency, horizonDays, holdMinutes, turnstileSiteKey, initialServiceId }: Props) {
+export function BookingFlow({ services, currency, horizonDays, holdMinutes, turnstileSiteKey, initialServiceId, promotion }: Props) {
   const t = useTranslations("booking");
   const te = useTranslations("errors");
   const locale = useLocale() as "bg" | "en";
@@ -150,6 +151,7 @@ export function BookingFlow({ services, currency, horizonDays, holdMinutes, turn
         variantId: variantId || null,
         startAt: slot.start,
         locale,
+        promotionId: promotion?.id,
         website: honeypot,
         turnstileToken: token || undefined,
       }),
@@ -195,6 +197,11 @@ export function BookingFlow({ services, currency, horizonDays, holdMinutes, turn
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
       <div className="space-y-8">
+        {promotion && (
+          <p className="rounded-xl border-2 border-gold-500 bg-parchment-100 p-4" role="note">
+            <strong>{t("promoNoticeTitle", { title: promotion.title })}</strong> {t("promoNoticeBody")}
+          </p>
+        )}
         <fieldset>
           <legend className="text-2xl text-burgundy-900">1. {t("chooseService")}</legend>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">

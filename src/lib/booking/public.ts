@@ -37,6 +37,14 @@ export async function createPublicBooking(deps: BookingDeps, input: BookingReque
   if (!res.ok) return { ok: false, error: toBookingError(res.error) };
 
   const appointmentId = String(res.appointment_id);
+  if (input.promotionId) {
+    // Informational: the studio decides on site whether to apply it. An invalid/expired promotion is ignored.
+    try {
+      await deps.rpc("attach_promotion", { p_appointment_id: appointmentId, p_promotion_id: input.promotionId, p_now: deps.now().toISOString() });
+    } catch {
+      /* never block the booking */
+    }
+  }
   const view = await loadEmailView(deps, appointmentId);
   const mail = view?.to
     ? await deps.mailer.send({

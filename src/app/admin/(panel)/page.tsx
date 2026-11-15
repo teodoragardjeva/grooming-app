@@ -12,7 +12,7 @@ export default async function OverviewPage() {
   const b = localDateTimeToUtc(addDays(today, 1), "00:00").toISOString();
   const w = localDateTimeToUtc(addDays(today, 8), "00:00").toISOString();
   const [todayRes, pendingRes, upcomingRes] = await Promise.all([
-    db.from("appointments").select("id,status,start_at,customer_name,dog_name,service_name_bg").in("status", ["pending_confirmation", "confirmed"]).gte("start_at", a).lt("start_at", b).order("start_at"),
+    db.from("appointments").select("id,status,start_at,customer_name,dog_name,service_name_bg,promotion_title_bg").in("status", ["pending_confirmation", "confirmed"]).gte("start_at", a).lt("start_at", b).order("start_at"),
     db.from("appointments").select("id", { count: "exact", head: true }).eq("status", "pending_confirmation").gt("hold_expires_at", new Date().toISOString()),
     db.from("appointments").select("id", { count: "exact", head: true }).eq("status", "confirmed").gte("start_at", b).lt("start_at", w),
   ]);
@@ -29,7 +29,7 @@ export default async function OverviewPage() {
       {list.length === 0 ? <p className="mt-2">{S.overview.none}</p> : (
         <ul className="mt-2 space-y-2">
           {list.map((x) => (
-            <li key={x.id}><Link className="underline" href={`/admin/appointments/${x.id}`}>{fmtTime(x.start_at)} – {x.customer_name}{x.dog_name ? ` (${x.dog_name})` : ""} · {x.service_name_bg}</Link> <span className="text-sm">({S.status[x.status]})</span></li>
+            <li key={x.id}><Link className="underline" href={`/admin/appointments/${x.id}`}>{fmtTime(x.start_at)} – {x.customer_name}{x.dog_name ? ` (${x.dog_name})` : ""} · {x.service_name_bg}</Link> <span className="text-sm">({S.status[x.status]})</span>{x.promotion_title_bg && <span className="ml-1 rounded bg-gold-100 px-1.5 text-sm font-semibold">{S.appt.promotionBadge}: {x.promotion_title_bg}</span>}</li>
           ))}
         </ul>
       )}

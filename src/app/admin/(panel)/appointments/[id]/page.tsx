@@ -32,6 +32,7 @@ export default async function AppointmentPage({ params, searchParams }: { params
         <dt className="font-semibold">{S.appt.dog}</dt><dd>{a.dog_name ?? "–"}</dd>
         <dt className="font-semibold">{S.appt.notes}</dt><dd className="whitespace-pre-line">{a.notes ?? "–"}</dd>
         <dt className="font-semibold">{S.appt.source}</dt><dd>{a.source === "admin" ? S.appt.sourceAdmin : S.appt.sourcePublic}</dd>
+        {a.promotion_title_bg && (<><dt className="font-semibold">{S.appt.promotion}</dt><dd><strong>{a.promotion_title_bg}</strong><br /><span className="text-sm">{S.appt.promotionHint}</span></dd></>)}
         {a.cancellation_reason && (<><dt className="font-semibold">{S.appt.reason}</dt><dd>{a.cancellation_reason}</dd></>)}
       </dl>
 

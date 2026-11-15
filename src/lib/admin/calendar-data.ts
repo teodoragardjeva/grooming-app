@@ -4,7 +4,7 @@ import { localDateTimeToUtc } from "../time/zone.ts";
 
 export interface CalAppt {
   id: string; status: string; start_at: string; end_at: string; customer_name: string; dog_name: string | null;
-  service_name_bg: string; variant_label_bg: string | null; prep_buffer_minutes: number; cleanup_buffer_minutes: number; source: string;
+  service_name_bg: string; variant_label_bg: string | null; prep_buffer_minutes: number; cleanup_buffer_minutes: number; source: string; promotion_title_bg: string | null;
 }
 export interface CalBlock { id: string; start_at: string; end_at: string; reason: string | null }
 export interface CalData {
@@ -19,7 +19,7 @@ export async function loadCalendar(db: Db, from: string, toInclusive: string): P
   const b = localDateTimeToUtc(addDays(toInclusive, 1), "00:00").toISOString();
   const [appts, blocks, weekly, overrides] = await Promise.all([
     db.from("appointments")
-      .select("id,status,start_at,end_at,customer_name,dog_name,service_name_bg,variant_label_bg,prep_buffer_minutes,cleanup_buffer_minutes,source")
+      .select("id,status,start_at,end_at,customer_name,dog_name,service_name_bg,variant_label_bg,prep_buffer_minutes,cleanup_buffer_minutes,source,promotion_title_bg")
       .in("status", ["pending_confirmation", "confirmed", "completed", "no_show"]).gte("start_at", a).lt("start_at", b).order("start_at"),
     db.from("blocked_intervals").select("id,start_at,end_at,reason").lt("start_at", b).gt("end_at", a).order("start_at"),
     db.from("working_hours").select("weekday,start_time,end_time").order("weekday").order("start_time"),

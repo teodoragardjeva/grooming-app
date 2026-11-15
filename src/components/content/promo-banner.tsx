@@ -25,7 +25,7 @@ export async function PromoBanner({ promo, locale }: { promo: Promotion; locale:
           <h3 className="mt-4 text-4xl font-medium leading-tight text-gold-100 sm:text-5xl">{pick(locale, promo.title_bg, promo.title_en)}</h3>
           <p className="mt-3 max-w-xl text-lg text-cream-50">{pick(locale, promo.description_bg, promo.description_en)}</p>
           <div className="mt-6 flex flex-wrap items-center gap-4">
-            <Button asChild size="lg"><Link href="/booking">{t("promoCta")}</Link></Button>
+            <Button asChild size="lg"><Link href={`/booking?promo=${promo.id}`}>{t("promoCta")}</Link></Button>
             {until && (
               <p className="-rotate-2 rounded-md border border-gold-600 bg-parchment-card px-4 py-2 text-sm font-semibold text-heading shadow-md">{t("validUntil", { date: until })}</p>
             )}
