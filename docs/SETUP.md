@@ -74,9 +74,16 @@ Set `BOT_SECRET` and `N8N_ENCRYPTION_KEY` in the stack environment (`openssl ran
 
 **First-time setup (once, on a fresh n8n volume):**
 1. Open the editor through an SSH tunnel (it is bound to the server's loopback only): `ssh -L 5678:localhost:5678 user@server`, then http://localhost:5678, and create the owner account.
-2. Create the credentials in n8n: an **OpenAI** credential (your API key) and a **Postgres** credential (host `db`, port `5432`, database/user/password from the stack variables `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, SSL disabled).
+2. Create the credentials in n8n: an **OpenAI** credential (your API key) and a **Postgres** credential for the **limited role `n8n_chat`** (host `db`, port `5432`, database `POSTGRES_DB`, user `n8n_chat`, the password you chose in the next block, SSL disabled). Do not use the application's own database user here: that would give n8n access to all customer data.
 3. The workflow file references credentials by **id** (`OpenAI account` = `tKExvAISwxBSqOXn`, `Postgres account` = `QoPx9gvYB4SbPKSO`). A freshly created credential gets a different id: either re-select it in the two nodes, export the workflow and commit it, or restore the same credentials. Credentials are never stored in git; they live in the n8n volume (`n8n_data`) and are decrypted with `N8N_ENCRYPTION_KEY`, so they survive only while that volume and key exist.
 4. **Restart the `n8n` container once** after creating the owner and credentials (on a fresh volume the first start imports before they exist, so the import fails and is retried on the next start). The entrypoint then imports and activates the workflow, and the visitor chat bubble (`/api/chat`) works. Test by asking for an appointment; without Resend configured the final booking step returns `email_failed` and nothing is booked.
+
+**Chatbot database role (once, before creating the Postgres credential in n8n):** `db/ops/create-n8n-chat-role.sql` creates the role `n8n_chat`, which can only use its own schema `n8n` (where n8n keeps the table `n8n_chat_histories`) and has no rights on customers, appointments or admin tables. Generate a password and run it as the database owner, from the server (find the db container with `docker ps --filter name=db`):
+```bash
+PW=$(openssl rand -hex 24); echo "n8n_chat password: $PW"      # save it: you enter it in the n8n credential
+docker exec -i <db-container> sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -v pw='"'$PW'"'' < db/ops/create-n8n-chat-role.sql
+```
+The script is safe to re-run (it resets the password) and ends with checks that fail loudly if the restrictions are not in place. If the chat table already exists in `public` (older deployments), it is moved into the `n8n` schema. After that, switch the n8n Postgres credential to user `n8n_chat` and restart the chat once to confirm memory still works.
 
 **Changing the workflow:** edit it in the n8n editor, then export it (workflow menu → Download), replace `n8n/grooming-chatbot.workflow.json` (keep the `id`; do not commit secrets; `instanceId` can be removed), commit, merge to `main`, and redeploy (set `N8N_IMAGE_TAG` to the new `sha-…` tag or use `latest` with re-pull). Chat history is stored in `n8n_chat_histories` in the app database.
 
