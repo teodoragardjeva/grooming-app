@@ -1,4 +1,5 @@
 import { Flash, fieldCls } from "@/components/admin/flash";
+import { DateField, TimeField } from "@/components/admin/date-fields";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireAdmin } from "@/lib/admin/auth";
 import { S } from "@/lib/admin/strings";
@@ -23,8 +24,8 @@ export default async function NewAppointmentPage({ searchParams }: { searchParam
         <div><label htmlFor="service">{S.appt.service}</label>
           <select id="service" name="service" required className={fieldCls}>{options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select></div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div><label htmlFor="date">{S.appt.date}</label><input id="date" name="date" type="date" required defaultValue={sp.date ?? localDateOf(new Date())} className={fieldCls} /></div>
-          <div><label htmlFor="time">{S.appt.time}</label><input id="time" name="time" type="time" step={300} required defaultValue={sp.time ?? ""} className={fieldCls} /></div>
+          <div><label htmlFor="date">{S.appt.date}</label><DateField id="date" name="date" required defaultValue={sp.date ?? localDateOf(new Date())} /></div>
+          <div><label htmlFor="time">{S.appt.time}</label><TimeField id="time" name="time" required defaultValue={sp.time ?? ""} /></div>
         </div>
         <div><label htmlFor="name">{S.appt.name}</label><input id="name" name="name" required minLength={2} maxLength={100} className={fieldCls} /></div>
         <div className="grid gap-4 sm:grid-cols-2">

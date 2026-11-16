@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Flash, fieldCls } from "@/components/admin/flash";
+import { DateField, DateTimeField, TimeField } from "@/components/admin/date-fields";
 import { CopyDayButton } from "@/components/admin/copy-day-button";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireAdmin } from "@/lib/admin/auth";
@@ -65,10 +66,10 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
                         <span className="text-xs font-semibold text-heading/80 sm:hidden">{S.sched.period} {k + 1}</span>
                         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
                           <label className="sr-only" htmlFor={`w${d}_${k}_start`}>{name}: {S.sched.period} {k + 1}, {S.sched.from}</label>
-                          <input id={`w${d}_${k}_start`} name={`w${d}_${k}_start`} type="time" defaultValue={rows[k]?.start_time.slice(0, 5) ?? ""} className={`${fieldCls} !mt-0 min-w-0 !px-2`} />
+                          <TimeField id={`w${d}_${k}_start`} name={`w${d}_${k}_start`} defaultValue={rows[k]?.start_time.slice(0, 5) ?? ""} className={`${fieldCls} !mt-0 min-w-0 !px-2`} />
                           <span aria-hidden="true">–</span>
                           <label className="sr-only" htmlFor={`w${d}_${k}_end`}>{name}: {S.sched.period} {k + 1}, {S.sched.to}</label>
-                          <input id={`w${d}_${k}_end`} name={`w${d}_${k}_end`} type="time" defaultValue={rows[k]?.end_time.slice(0, 5) ?? ""} className={`${fieldCls} !mt-0 min-w-0 !px-2`} />
+                          <TimeField id={`w${d}_${k}_end`} name={`w${d}_${k}_end`} defaultValue={rows[k]?.end_time.slice(0, 5) ?? ""} className={`${fieldCls} !mt-0 min-w-0 !px-2`} />
                         </div>
                       </div>
                     ))}
@@ -84,13 +85,13 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
       <section aria-labelledby="ovr">
         <h2 id="ovr" className="text-2xl text-heading">{S.sched.overrides}</h2>
         <form action={saveOverrideAction} className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div><label htmlFor="o-from">{S.sched.dateFrom}</label><input id="o-from" name="from" type="date" required min={today} className={fieldCls} /></div>
-          <div><label htmlFor="o-to">{S.sched.dateTo}</label><input id="o-to" name="to" type="date" min={today} className={fieldCls} /></div>
+          <div><label htmlFor="o-from">{S.sched.dateFrom}</label><DateField id="o-from" name="from" required min={today} /></div>
+          <div><label htmlFor="o-to">{S.sched.dateTo}</label><DateField id="o-to" name="to" min={today} /></div>
           <fieldset className="sm:col-span-2"><legend className="sr-only">Тип</legend>
             <label className="mr-4"><input type="radio" name="mode" value="closed" defaultChecked /> {S.sched.closedRange}</label>
             <label><input type="radio" name="mode" value="special" /> {S.sched.special}</label></fieldset>
-          <div><label htmlFor="o-start">{S.sched.from}</label><input id="o-start" name="start" type="time" className={fieldCls} /></div>
-          <div><label htmlFor="o-end">{S.sched.to}</label><input id="o-end" name="end" type="time" className={fieldCls} /></div>
+          <div><label htmlFor="o-start">{S.sched.from}</label><TimeField id="o-start" name="start" /></div>
+          <div><label htmlFor="o-end">{S.sched.to}</label><TimeField id="o-end" name="end" /></div>
           <div className="sm:col-span-2"><label htmlFor="o-note">{S.sched.note}</label><input id="o-note" name="note" maxLength={200} className={fieldCls} /></div>
           <div><SubmitButton>{S.sched.addOverride}</SubmitButton></div>
         </form>
@@ -107,8 +108,8 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
       <section aria-labelledby="blk">
         <h2 id="blk" className="text-2xl text-heading">{S.sched.blocks}</h2>
         <form action={addBlockAction} className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div><label htmlFor="b-start">{S.sched.blockStart}</label><input id="b-start" name="start" type="datetime-local" required className={fieldCls} /></div>
-          <div><label htmlFor="b-end">{S.sched.blockEnd}</label><input id="b-end" name="end" type="datetime-local" required className={fieldCls} /></div>
+          <div><label htmlFor="b-start">{S.sched.blockStart}</label><DateTimeField id="b-start" name="start" required /></div>
+          <div><label htmlFor="b-end">{S.sched.blockEnd}</label><DateTimeField id="b-end" name="end" required /></div>
           <div className="sm:col-span-2"><label htmlFor="b-reason">{S.sched.reason}</label><input id="b-reason" name="reason" maxLength={200} className={fieldCls} /></div>
           <div><SubmitButton>{S.sched.addBlock}</SubmitButton></div>
         </form>

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Flash, fieldCls } from "@/components/admin/flash";
+import { DateField, TimeField } from "@/components/admin/date-fields";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireAdmin } from "@/lib/admin/auth";
 import { fmtDateTime, fmtMoney } from "@/lib/admin/format";
@@ -59,8 +60,8 @@ export default async function AppointmentPage({ params, searchParams }: { params
             <form action={rescheduleAppointmentAction} className="mt-3 space-y-3">
               <input type="hidden" name="id" value={a.id} />
               <div className="grid gap-3 sm:grid-cols-2">
-                <div><label htmlFor="r-date">{S.appt.date}</label><input id="r-date" name="date" type="date" required defaultValue={localDateOf(new Date(a.start_at))} className={fieldCls} /></div>
-                <div><label htmlFor="r-time">{S.appt.time}</label><input id="r-time" name="time" type="time" step={300} required defaultValue={localTimeOf(new Date(a.start_at))} className={fieldCls} /></div>
+                <div><label htmlFor="r-date">{S.appt.date}</label><DateField id="r-date" name="date" required defaultValue={localDateOf(new Date(a.start_at))} /></div>
+                <div><label htmlFor="r-time">{S.appt.time}</label><TimeField id="r-time" name="time" required defaultValue={localTimeOf(new Date(a.start_at))} /></div>
               </div>
               <label className="flex items-center gap-2"><input type="checkbox" name="override" className="size-5" /> {S.appt.overrideNotice}</label>
               {a.customer_email ? <label className="flex items-center gap-2"><input type="checkbox" name="notify" defaultChecked className="size-5" /> {S.appt.notify}</label> : <p className="text-sm">{S.appt.noEmail}</p>}
