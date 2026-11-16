@@ -1,4 +1,5 @@
 import { Flash, fieldCls } from "@/components/admin/flash";
+import { DateField } from "@/components/admin/date-fields";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { requireAdmin } from "@/lib/admin/auth";
 import { S } from "@/lib/admin/strings";
@@ -16,8 +17,8 @@ function PromoForm({ p }: { p?: Promo }) {
       <div><label htmlFor={`${k}-te`}>{S.promos.nameEn}</label><input id={`${k}-te`} name="title_en" defaultValue={p?.title_en ?? ""} className={fieldCls} /></div>
       <div><label htmlFor={`${k}-d`}>{S.promos.desc}</label><textarea id={`${k}-d`} name="description_bg" rows={3} defaultValue={p?.description_bg ?? ""} className={fieldCls} /></div>
       <div><label htmlFor={`${k}-de`}>{S.promos.descEn}</label><textarea id={`${k}-de`} name="description_en" rows={3} defaultValue={p?.description_en ?? ""} className={fieldCls} /></div>
-      <div><label htmlFor={`${k}-s`}>{S.promos.from}</label><input id={`${k}-s`} name="starts" type="date" defaultValue={p?.starts_at ? localDateOf(new Date(p.starts_at)) : ""} className={fieldCls} /></div>
-      <div><label htmlFor={`${k}-e`}>{S.promos.to}</label><input id={`${k}-e`} name="ends" type="date" defaultValue={p?.ends_at ? localDateOf(new Date(p.ends_at)) : ""} className={fieldCls} /></div>
+      <div><label htmlFor={`${k}-s`}>{S.promos.from}</label><DateField id={`${k}-s`} name="starts" defaultValue={p?.starts_at ? localDateOf(new Date(p.starts_at)) : ""} /></div>
+      <div><label htmlFor={`${k}-e`}>{S.promos.to}</label><DateField id={`${k}-e`} name="ends" defaultValue={p?.ends_at ? localDateOf(new Date(p.ends_at)) : ""} /></div>
       <div><label htmlFor={`${k}-o`}>{S.common.order}</label><input id={`${k}-o`} name="order" type="number" defaultValue={p?.display_order ?? 0} className={fieldCls} /></div>
       <label className="flex items-center gap-2 self-end"><input type="checkbox" name="published" defaultChecked={p?.is_published} className="size-5" /> {S.common.published}</label>
       <div><SubmitButton>{S.common.save}</SubmitButton></div>

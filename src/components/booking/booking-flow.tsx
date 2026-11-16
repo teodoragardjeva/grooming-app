@@ -236,6 +236,7 @@ export function BookingFlow({ services, currency, horizonDays, holdMinutes, turn
             <div className="mt-3 inline-block rounded-xl bg-white p-3">
               <DayPicker
                 mode="single"
+                weekStartsOn={1}
                 locale={locale === "bg" ? dpBg : dpEn}
                 selected={date ? parseYmd(date) : undefined}
                 onSelect={(d) => { setDate(d ? ymd(d) : null); setSlot(null); }}
