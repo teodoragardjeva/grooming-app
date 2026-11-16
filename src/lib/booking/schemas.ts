@@ -29,7 +29,7 @@ export type BookingRequest = z.infer<typeof bookingRequestSchema>;
 
 export const availabilityQuerySchema = z.object({
   service: z.uuid(),
-  variant: z.uuid().optional(),
+  variant: z.preprocess((v) => (v === "" ? undefined : v), z.uuid().optional()), // chatbot tools may send an empty value
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 

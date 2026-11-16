@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const schema = z.object({
   service: z.uuid(),
-  variant: z.uuid().optional(),
+  variant: z.preprocess((v) => (v === "" ? undefined : v), z.uuid().optional()), // chatbot tools may send an empty value
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });

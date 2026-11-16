@@ -33,6 +33,10 @@ describe("availability query", () => {
   it("validates date shape", () => {
     expect(availabilityQuerySchema.safeParse({ service: base.serviceId, date: "2026-12-02" }).success).toBe(true);
     expect(availabilityQuerySchema.safeParse({ service: base.serviceId, date: "02/12/2026" }).success).toBe(false);
+    // an empty variant (sent by chatbot tools) means "no variant"; an empty service is still rejected
+    const empty = availabilityQuerySchema.safeParse({ service: base.serviceId, variant: "", date: "2026-12-02" });
+    expect(empty.success && empty.data.variant).toBeUndefined();
+    expect(availabilityQuerySchema.safeParse({ service: "", date: "2026-12-02" }).success).toBe(false);
   });
 });
 
