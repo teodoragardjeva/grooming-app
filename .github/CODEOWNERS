@@ -1,0 +1,2 @@
+# Workflow files change what runs with package-write rights: require an owner review.
+/.github/ @teodoragardjeva

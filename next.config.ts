@@ -10,6 +10,23 @@ const nextConfig: NextConfig = {
   agentRules: false,
   // Gallery uploads go through a server action (5 MB image limit enforced in the action).
   experimental: { serverActions: { bodySizeLimit: "6mb" } },
+  // Baseline security headers for every response. Confirm/cancel tokens travel in the page URL, so the referrer
+  // must never leak the full URL to other sites; the admin panel must not be frameable (clickjacking).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

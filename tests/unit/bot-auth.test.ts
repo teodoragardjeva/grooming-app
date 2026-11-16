@@ -23,3 +23,18 @@ test("visitor ip is honoured only for a trusted bot", () => {
   const spoof = h({ "x-visitor-ip": "203.0.113.7", "x-forwarded-for": "198.51.100.9" });
   assert.equal(requestIp(spoof, SECRET), "198.51.100.9");
 });
+
+test("client ip cannot be spoofed through a forged X-Forwarded-For entry", () => {
+  // The proxy appends the real peer; whatever the client put in front of it must be ignored.
+  assert.equal(requestIp(h({ "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), SECRET), "198.51.100.9");
+  // X-Real-IP (overwritten by the proxy) wins over X-Forwarded-For.
+  assert.equal(requestIp(h({ "x-real-ip": "198.51.100.9", "x-forwarded-for": "6.6.6.6" }), SECRET), "198.51.100.9");
+  assert.equal(requestIp(h({}), SECRET), "unknown");
+});
+
+test("client ip ignores empty or oversize header values and falls back", () => {
+  const huge = "9".repeat(65);
+  assert.equal(requestIp(h({ "x-real-ip": "   ", "x-forwarded-for": "6.6.6.6, 198.51.100.9" }), SECRET), "198.51.100.9");
+  assert.equal(requestIp(h({ "x-real-ip": huge, "x-forwarded-for": "198.51.100.9" }), SECRET), "198.51.100.9");
+  assert.equal(requestIp(h({ "x-real-ip": huge, "x-forwarded-for": huge }), SECRET), "unknown");
+});

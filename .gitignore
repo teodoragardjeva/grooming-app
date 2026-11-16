@@ -35,3 +35,7 @@ Thumbs.db
 
 # claude local overrides
 .claude/settings.local.json
+
+# local-only skill (not shared) and its audit reports
+.claude/skills/cso/
+.gstack/

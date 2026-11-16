@@ -49,6 +49,7 @@ The server already runs **Nginx Proxy Manager (NPM)** on ports 80/443; it owns t
    - Domain Names: your domain (e.g. `magic-paws.robodigit.win`)
    - Scheme: `http`, Forward Hostname / IP: `app`, Forward Port: `3000`
    - Enable "Block Common Exploits" and "Websockets Support" (optional)
+   - Leave the default proxy headers on: the app relies on NPM overwriting `X-Real-IP` with the real client address for rate limiting (see `docs/DECISIONS.md`, "Client IP for rate limiting"). Do not put another proxy/CDN in front of NPM without revisiting that.
    - SSL tab: request a new **Let's Encrypt** certificate, enable **Force SSL** (and HTTP/2)
 5. Create the admin user (section 3, e.g. from the Portainer container console of `app` or `docker compose run`) and fill in the first-run checklist.
 
