@@ -3,10 +3,18 @@ import { createHash } from "node:crypto";
 
 export type Rpc = <T = unknown>(fn: string, args?: Record<string, unknown>) => Promise<T>;
 
+/**
+ * The client IP as seen by our single trusted reverse proxy (Nginx Proxy Manager).
+ * NPM overwrites `X-Real-IP` with the real peer address, and APPENDS the peer to any client-supplied
+ * `X-Forwarded-For`. So the first X-Forwarded-For entry is attacker-controlled (rotating it would bypass every
+ * rate limit, including the admin login throttle); only `X-Real-IP` or the LAST entry can be trusted.
+ */
 export function clientIp(headers: { get(name: string): string | null }): string {
-  const fwd = headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return headers.get("x-real-ip")?.trim() || "unknown";
+  const real = headers.get("x-real-ip")?.trim();
+  if (real && real.length <= 64) return real;
+  const last = headers.get("x-forwarded-for")?.split(",").pop()?.trim();
+  if (last && last.length <= 64) return last;
+  return "unknown";
 }
 
 /** Returns true when the request is allowed. Keys are hashed so raw IPs are not stored. */
