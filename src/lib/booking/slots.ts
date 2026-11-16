@@ -1,6 +1,6 @@
 // Server-side slot listing. Inputs come from the database in one call; the pure engine computes slots.
 import { computeSlots, resolveWindows, type Interval, type Slot } from "../availability/engine.ts";
-import { addDays, dateRange, daysBetween, isValidDateString, localDateOf } from "../time/dates.ts";
+import { addDays, dateRange, daysBetween, isValidDateString, localDateOf, localTimeOf } from "../time/dates.ts";
 import { localDateTimeToUtc } from "../time/zone.ts";
 import { toBookingError, type BookingError } from "./errors.ts";
 import { resolveResource, type BookingDeps } from "./deps.ts";
@@ -17,8 +17,9 @@ interface Inputs {
 }
 
 export interface SlotDto {
-  start: string;
+  start: string; // UTC instant (ISO 8601, ends in Z); pass it back unchanged when booking
   end: string;
+  local: string; // studio-local start time, HH:mm: the time to show to people
   available: boolean;
   reason?: string;
 }
@@ -81,7 +82,7 @@ export async function listSlots(
     durationMinutes: inp.timing.duration_minutes,
     priceCents: inp.timing.price_cents,
     currency: inp.settings.currency,
-    slots: slots.map((s) => ({ start: s.start.toISOString(), end: s.end.toISOString(), available: s.available, reason: s.reason })),
+    slots: slots.map((s) => ({ start: s.start.toISOString(), end: s.end.toISOString(), local: localTimeOf(s.start, inp.settings.timezone), available: s.available, reason: s.reason })),
   };
 }
 

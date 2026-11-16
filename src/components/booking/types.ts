@@ -7,4 +7,4 @@ export interface BookingService {
   priceCents: number | null; // fixed services
   variants: BookingVariant[];
 }
-export interface SlotDto { start: string; end: string; available: boolean; reason?: string }
+export interface SlotDto { start: string; end: string; local?: string; available: boolean; reason?: string }
