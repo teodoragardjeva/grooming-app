@@ -5,11 +5,11 @@ import { PageHero, PageSection } from "@/components/page-hero";
 import { Button } from "@/components/ui/button";
 import { resolveLocale, type LocaleParams } from "@/i18n/locale";
 import { pick } from "@/lib/content/locale";
-import { getSettings, getSiteContent } from "@/lib/content/queries";
+import { getOpeningHours, getSettings, getSiteContent } from "@/lib/content/queries";
 import { pageMetadata } from "@/lib/seo/page-metadata";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic"; // content comes from the database: never serve a build-time (empty) copy
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   return pageMetadata(await resolveLocale(params), "/contacts", "contacts");
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 export default async function Page({ params }: LocaleParams) {
   const locale = await resolveLocale(params);
   const t = await getTranslations();
-  const [settings, content] = await Promise.all([getSettings(), getSiteContent(["contacts.hours"])]);
+  const [settings, content, openingHours] = await Promise.all([getSettings(), getSiteContent(["contacts.hours"]), getOpeningHours(locale)]);
   const address = settings ? pick(locale, settings.address_bg, settings.address_en) : "";
   const hours = pick(locale, content["contacts.hours"]?.content_bg, content["contacts.hours"]?.content_en);
   const example = !settings || settings.is_example_data;
@@ -49,7 +49,7 @@ export default async function Page({ params }: LocaleParams) {
           </div>
           <div>
             <dt className="flex items-center gap-2 font-semibold"><Clock aria-hidden="true" className="size-5 text-burgundy-700" />{t("content.hours")}</dt>
-            <dd className="mt-1 whitespace-pre-line">{hours || t("footer.hoursExample")}</dd>
+            <dd className="mt-1 whitespace-pre-line">{openingHours.length ? openingHours.join("\n") : hours || t("footer.hoursExample")}</dd>
           </div>
         </dl>
       </PageSection>

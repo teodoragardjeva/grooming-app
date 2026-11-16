@@ -17,7 +17,7 @@ import { mediaUrl, pick } from "@/lib/content/locale";
 import { getGallery, getPromotions, getServices, getSettings } from "@/lib/content/queries";
 import { buildAlternates, siteUrl } from "@/lib/seo/metadata";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic"; // content comes from the database: never serve a build-time (empty) copy
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const locale = await resolveLocale(params);
