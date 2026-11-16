@@ -1,6 +1,7 @@
 // Public content reads. Note: there is no row-level security; only published/active rows may be exposed here.
 // Every function degrades to an empty value when the database is not configured or unreachable.
 import { getDbOrNull, type Db } from "../db/index.ts";
+import { formatWeeklyHours, type WeeklyRow } from "./hours.ts";
 import type { GalleryImage, Promotion, Service, Settings, SiteContentRow } from "./types.ts";
 
 async function safe<T>(label: string, fallback: T, fn: (db: Db) => PromiseLike<T>): Promise<T> {
@@ -19,6 +20,15 @@ export function getSettings(): Promise<Settings | null> {
     const { data, error } = await db.from("business_settings").select("*").eq("id", true).maybeSingle();
     if (error) throw error;
     return (data as Settings | null) ?? null;
+  });
+}
+
+/** Opening hours text from the real weekly schedule (what the admin sets under "Работно време"), one line per day group. */
+export function getOpeningHours(locale: string): Promise<string[]> {
+  return safe<string[]>("opening hours", [], async (db) => {
+    const { data, error } = await db.from("working_hours").select("weekday,start_time,end_time").order("weekday").order("start_time");
+    if (error) throw error;
+    return formatWeeklyHours((data ?? []) as WeeklyRow[], locale);
   });
 }
 

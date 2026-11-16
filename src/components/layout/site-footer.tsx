@@ -4,11 +4,11 @@ import { Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "./nav-items";
 import { Sparkles } from "./decor";
 import { pick } from "@/lib/content/locale";
-import { getSettings } from "@/lib/content/queries";
+import { getOpeningHours, getSettings } from "@/lib/content/queries";
 
 export async function SiteFooter({ locale = "bg" }: { locale?: "bg" | "en" }) {
   const t = await getTranslations();
-  const settings = await getSettings();
+  const [settings, openingHours] = await Promise.all([getSettings(), getOpeningHours(locale)]);
   const example = !settings || settings.is_example_data;
   const year = new Date().getFullYear();
   const link = "inline-flex min-h-11 items-center text-mist underline-offset-4 hover:text-gold-300 hover:underline";
@@ -59,7 +59,7 @@ export async function SiteFooter({ locale = "bg" }: { locale?: "bg" | "en" }) {
             </li>
             <li className="flex items-start gap-2">
               <Clock aria-hidden="true" className="mt-1 size-4 shrink-0 text-gold-400" />
-              {t("footer.hoursExample")}
+              <span className="whitespace-pre-line">{openingHours.length ? openingHours.join("\n") : t("footer.hoursExample")}</span>
             </li>
           </ul>
         </div>

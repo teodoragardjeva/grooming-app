@@ -11,7 +11,7 @@ import { Faq } from "@/components/seo/faq";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pick } from "@/lib/content/locale";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic"; // content comes from the database: never serve a build-time (empty) copy
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   return pageMetadata(await resolveLocale(params), "/services", "services");

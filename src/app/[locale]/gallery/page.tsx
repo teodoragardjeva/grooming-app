@@ -9,7 +9,7 @@ import { staticGalleryItems } from "@/lib/content/photos";
 import { pageMetadata } from "@/lib/seo/page-metadata";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic"; // content comes from the database: never serve a build-time (empty) copy
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   return pageMetadata(await resolveLocale(params), "/gallery", "gallery");
